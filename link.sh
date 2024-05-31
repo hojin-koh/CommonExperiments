@@ -18,6 +18,12 @@ if [[ ! -h "$TARGET/uc" ]]; then
   ln -sTv "$DIR_COMMONEXP/utils" "$TARGET/uc"
 fi
 
+# Binary things
+make -C "$DIR_COMMONEXP/src"
+if [[ ! -h "$TARGET/bc" ]]; then
+  ln -sTv "$DIR_COMMONEXP/bin" "$TARGET/bc"
+fi
+
 # Make a "relink" script
 if [[ ! -x "$TARGET/link.again.sh" ]]; then
   rm -fv "$TARGET/link.again.sh"

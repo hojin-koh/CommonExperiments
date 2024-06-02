@@ -1,0 +1,6 @@
+OpenCC
+dbfread
+
+# For excel files
+openpyxl
+xlrd

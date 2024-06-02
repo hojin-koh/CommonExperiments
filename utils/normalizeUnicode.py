@@ -15,13 +15,22 @@
 # limitations under the License.
 
 # Based on a table of (bad character)\t(good character) records as argv[1],
-# Perform text normalization on the text part of (id)\t(text) records from stdin
+# Perform text normalization on text part of (id)\t(text) records (if sys.argv[2]=="text")
+# or key part of (key)\t(number) records from stdin (if sys.argv[2]=="key")
 # Also will do unicodedata.normalize()
 
 import fileinput
 import re
 import sys
 import unicodedata
+
+def normalize(objTrans, text):
+    # Only normalize the "letter" parts, not punctuations
+    return "".join(list(map(
+        lambda c: unicodedata.normalize('NFKC', c).translate(objTrans)
+        if unicodedata.category(c)[0] == 'L' else c,
+        text
+        )))
 
 def main():
     mTrans = {}
@@ -34,19 +43,44 @@ def main():
             mTrans[c1] = c2
     objTrans = str.maketrans(mTrans)
 
-    for line in sys.stdin:
-        eid, text = line.split('\t', 1)
-        text = text.strip()
+    if sys.argv[2] == "text":
+        for line in sys.stdin:
+            eid, text = line.split('\t', 1)
+            text = normalize(objTrans, text.strip())
 
-        # Only normalize the "letter" parts, not punctuations
-        text2 = "".join(list(map(
-            lambda c: unicodedata.normalize('NFKC', c) if unicodedata.category(c)[0] == 'L' else c,
-            text
-            )))
-        for i, c in enumerate(text):
-            if text[i] != text2[i]:
-                sys.stderr.write(F"REPLACE {text[i]} -> {text2[i]}\n")
-        print('{}\t{}'.format(eid, text2.translate(objTrans)))
+            print('{}\t{}'.format(eid, text))
+
+    elif sys.argv[2] == "key":
+        mContent = {}
+        aOrder = []
+        hasNumber = True
+        for line in sys.stdin:
+            try:
+                key, num = line.split('\t', 1)
+                if num.find('.') != -1:
+                    num = float(num.strip())
+                else:
+                    num = int(num.strip())
+            except:
+                hasNumber = False
+                num = 1
+                key = line.strip()
+
+            key = normalize(objTrans, key)
+
+            if key not in mContent:
+                aOrder.append(key)
+                mContent[key] = num
+            else:
+                mContent[key] += num
+
+        if hasNumber:
+            for k in aOrder:
+                v = mContent[k]
+                print(F'{k}\t{v}')
+        else:
+            for k in aOrder:
+                print(F'{k}')
 
 if __name__ == '__main__':
     main()

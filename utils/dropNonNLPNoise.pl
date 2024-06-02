@@ -42,6 +42,8 @@ while (<>) {
 
   # Consolidate multiple spaces
   $content =~ s/\s+/ /gu;
+  $content =~ s/^\s+//gu;
+  $content =~ s/\s+$//gu;
 
   print "$id\t$content\n";
 }

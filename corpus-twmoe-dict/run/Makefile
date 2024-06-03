@@ -1,5 +1,7 @@
 .NOTPARALLEL:
 
+.NOTINTERMEDIATE:
+
 .ONESHELL:
 
 .DEFAULT_GOAL := all
@@ -124,7 +126,8 @@ $(DICTOUT): $(DICTCOMB) $(NORMOUT)
 
 all: $(DICTOUT) $(FREQOUT) $(NORMOUT)
 
-clean:
-	@rm -fv $(DICTALL) $(FREQALL) $(NORMALL)
-	@rm -fv $(foreach f,$(DICTALL) $(FREQALL) $(NORMALL),$(f).meta)
+EVERYTHING = $(DICTALL) $(FREQALL) $(NORMALL)
 
+clean:
+	@rm -fv $(EVERYTHING)
+	@rm -fv $(foreach f,$(EVERYTHING),$(f).meta)

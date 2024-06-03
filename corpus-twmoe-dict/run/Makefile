@@ -4,6 +4,10 @@
 
 NORMALIZER := dl/twmoe-variants.zst
 
+ds/google-charfreq-unnorm.zst:
+	@ss/import-google-charfreq.zsh \
+		in=craw/google-ngram-zh-2020.gz out=$@
+
 ds/twmoe-dict-idioms-unnorm.zst:
 	@ss/import-twmoe-idioms.zsh \
 		in=craw/twmoe-dict-idioms.zip out=$@
@@ -12,10 +16,10 @@ ds/twmoe-dict-concised-unnorm.zst:
 	@ss/import-twmoe-dict.zsh \
 		in=craw/twmoe-dict-concised.zip out=$@
 
-ds/twmoe-charfreq.zst: ds/twmoe-charfreq-unnorm.zst $(NORMALIZER)
-	@sc/normalize-unicode-key.zsh \
-		conv=dl/twmoe-variants.zst \
-		in=$< out=$@
+#ds/twmoe-charfreq.zst: ds/twmoe-charfreq-unnorm.zst $(NORMALIZER)
+#	@sc/normalize-unicode-key.zsh \
+#		conv=dl/twmoe-variants.zst \
+#		in=$< out=$@
 
 $(NORMALIZER): ds/twmoe-charfreq-unnorm.zst
 	@ss/import-twmoe-variants.zsh \

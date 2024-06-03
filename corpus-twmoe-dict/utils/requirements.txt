@@ -1,6 +1,9 @@
 OpenCC
 dbfread
 
+# For parsing html source files
+beautifulsoup4
+
 # For excel files
 openpyxl
 xlrd

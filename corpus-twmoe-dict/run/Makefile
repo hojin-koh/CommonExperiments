@@ -18,7 +18,7 @@ CPSDICTCON = craw/download-dict/twmoe-dict-concised.zip
 
 DICTOUT = dl/dict-tw-general.zst
 DICTCOMB = ds/dict-tw-general-unnorm.zst
-DICTIN = ds/twmoe-dict-concised-unnorm.zst ds/twmoe-dict-idioms-unnorm.zst ds/twmoe-dict-zhuyin-unnorm.zst \
+DICTIN = ds/dict-twmoe-concised-unnorm.zst ds/dict-twmoe-idioms-unnorm.zst ds/dict-twmoe-zhuyin-unnorm.zst \
 	  ds/dict-tw-area-unnorm.zst ds/dict-world-country-unnorm.zst ds/dict-world-capital-unnorm.zst \
 	  ds/dict-world-city-unnorm.zst ds/dict-japan-area-unnorm.zst ds/dict-china-city-unnorm.zst \
 	  ds/dict-china-general-freqword.zst

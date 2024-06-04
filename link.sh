@@ -88,7 +88,7 @@ set -euo pipefail
 
 EOF
   printf "'%s'" "$(readlink -f "$0")" >> "$TARGET/link.again.sh"
-  printf " '%s'" "$@" >> "$TARGET/link.again.sh"
+  printf " '%s'" "$(readlink -f "$1")" >> "$TARGET/link.again.sh"
   chmod 755 "$TARGET/link.again.sh"
 fi
 

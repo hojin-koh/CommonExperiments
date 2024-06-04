@@ -35,7 +35,7 @@ def main():
         if freqCumulative >= 90: break
 
         w = objOpenCC.convert(w)
-        if re.search(R'[一二三四五六七八九十人你我他上下不無中了呢嗎嘛的是就很最較]|戰爭', w): continue
+        if re.search(R'[一中了呢嗎嘛的]|戰爭', w): continue
 
         w = "".join(c for c in w if not unicodedata.category(c).startswith("P"))
         print(w)

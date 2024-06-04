@@ -23,7 +23,7 @@ setupArgs() {
 
 main() {
   in::load \
-  | uc/count-value.pl \
+  | uc/reverse-count-value.pl \
   | out::save
   return $?
 }

@@ -51,7 +51,7 @@ $(word 2,$(FREQIN)):
 		in=$(CPSGOOGLENGRAM) out=$@
 
 $(FREQCOMB): $(FREQIN)
-	@sc/merge-table.zsh --normalize \
+	@sc/table-merge-count.zsh --normalize \
 		w=0.9 in=$(word 1,$(FREQIN)) \
 		w=0.1 in=$(word 2,$(FREQIN)) \
 		out=$@
@@ -113,7 +113,7 @@ $(word 10,$(DICTIN)):
 		in=$(CPSDICTCNFREQ) out=$@
 
 $(DICTCOMB): $(DICTIN)
-	@sc/merge-table.zsh \
+	@sc/table-merge-count.zsh \
 		$(foreach i,$(DICTIN),in=$(i)) \
 		out=$@
 

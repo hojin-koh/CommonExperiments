@@ -38,7 +38,7 @@ main() {
     param+=" ${w[$i]-1.0} /dev/fd/$fdThis"
   done
 
-  uc/mergeTable.py "${(z)param}" \
+  uc/merge-table.py "${(z)param}" \
   | out::save
   local rslt=$?
 

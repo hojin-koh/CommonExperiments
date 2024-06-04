@@ -25,7 +25,7 @@ setupArgs() {
 
 main() {
   in::load \
-  | uc/normalizeUnicode.py <(conv::load) text \
+  | uc/normalize-unicode.py <(conv::load) text \
   | out::save
   return $?
 }

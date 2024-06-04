@@ -23,7 +23,7 @@ DICTCOMB = ds/dict-tw-general-unnorm.zst
 DICTIN = ds/dict-twmoe-concised-unnorm.zst ds/dict-twmoe-idioms-unnorm.zst ds/dict-twmoe-zhuyin-unnorm.zst \
 	  ds/dict-tw-area-unnorm.zst ds/dict-world-country-unnorm.zst ds/dict-world-capital-unnorm.zst \
 	  ds/dict-world-city-unnorm.zst ds/dict-japan-area-unnorm.zst ds/dict-china-city-unnorm.zst \
-	  ds/dict-china-general-freqword.zst
+	  ds/dict-china-general-freqword-unnorm.zst ds/dict-custom-number-unnorm.zst ds/dict-thuocl-unnorm.zst
 DICTALL = $(DICTOUT) $(DICTCOMB) $(DICTIN)
 
 CPSVARIANT = craw/download-dict/twmoe-variants.txt
@@ -111,6 +111,13 @@ $(word 9,$(DICTIN)):
 $(word 10,$(DICTIN)):
 	@ss/import-china-freqword.zsh \
 		in=$(CPSDICTCNFREQ) out=$@
+
+$(word 11,$(DICTIN)):
+	@ss/generate-number-list.zsh out=$@
+
+$(word 12,$(DICTIN)):
+	@ss/import-thuocl-dict.zsh \
+		in=craw/download-dict/thuocl out=$@
 
 $(DICTCOMB): $(DICTIN)
 	@sc/table-merge-count.zsh \

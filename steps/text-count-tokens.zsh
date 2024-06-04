@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/env zsh
 # Copyright 2020-2024, Hojin Koh
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,31 +12,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+description="Count how many text tokens is in the text record"
 
-# Reverse the mapping relationships in a table
-# doc1 -> cls1 cls2
-# doc2 -> cls2
-# Will become
-# cls1 -> doc1 doc2
-# cls2 -> doc1
-
-use strict;
-use warnings;
-use utf8;
-use open qw(:std :utf8);
-
-my %mCount;
-
-# Read the input file
-while (<>) {
-    chomp;
-    my ($key, $value) = split(/\t/, $_, 2);
-    
-    # Store document names under their corresponding value
-    $mCount{$value}++;
+setupArgs() {
+  opt -r in '' "Input text"
+  optType in input text
+  opt -r out '' "Output table"
+  optType out output table
 }
 
-# Output the count data
-for my $value (sort keys %mCount) {
-    print "$value\t$mCount{$value}\n";
+main() {
+  in::load \
+  | uc/count-tokens.pl \
+  | out::save
+  return $?
 }
+
+source Mordio/mordio

@@ -27,8 +27,8 @@ use open qw(:std :utf8);
 
 my %mValue;
 
-# Read the input file
-while (<>) {
+# Read the input
+while (<STDIN>) {
     chomp;
     my ($key, $value) = split(/\t/, $_, 2);
     

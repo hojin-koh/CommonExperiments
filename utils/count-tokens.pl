@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env perl
 # Copyright 2020-2024, Hojin Koh
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,21 +12,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Count how many times values appeared in a table. Reverse table with only counts."
 
-setupArgs() {
-  opt -r in '' "Input table"
-  optType in input table
-  opt -r out '' "Output table"
-  optType out output table
+# Count the number of space-separated tokens in the "text" part of records
+
+use strict;
+use warnings;
+use utf8;
+use open qw(:std :utf8);
+
+while (<STDIN>) {
+    chomp;
+    my ($key, $value) = split(/\t/, $_, 2);
+    $value =~ s/^\s*//;
+    $value =~ s/\s*$//;
+    my @aToken = split(/\s+/, $value);
+    
+    my $len = @aToken;
+    print "$key\t$len\n";
 }
-
-main() {
-  in::load \
-  | uc/reverse-mapping.pl \
-  | uc/count-tokens.pl \
-  | out::save
-  return $?
-}
-
-source Mordio/mordio

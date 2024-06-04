@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env perl
 # Copyright 2020-2024, Hojin Koh
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,21 +12,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Count how many times values appeared in a table. Reverse table with only counts."
 
-setupArgs() {
-  opt -r in '' "Input table"
-  optType in input table
-  opt -r out '' "Output table"
-  optType out output table
+# Perform table arithmetic based on an user expression from $ARGV[0]
+
+use strict;
+use warnings;
+use utf8;
+use open qw(:std :utf8);
+
+my $arith = $ARGV[0];
+while (<STDIN>) {
+    chomp;
+    my @F = split(/\t/);
+    my $key = $F[0];
+    my $rslt = eval($arith);
+
+    print "$key\t$rslt\n";
 }
-
-main() {
-  in::load \
-  | uc/reverse-mapping.pl \
-  | uc/count-tokens.pl \
-  | out::save
-  return $?
-}
-
-source Mordio/mordio

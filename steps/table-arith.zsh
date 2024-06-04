@@ -12,21 +12,40 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Count how many times values appeared in a table. Reverse table with only counts."
+description="Do arithmetics with the nth (n>0) field with multiple tables"
 
 setupArgs() {
-  opt -r in '' "Input table"
+  opt -r in '()' "Input tables"
   optType in input table
   opt -r out '' "Output table"
   optType out output table
+
+  opt nth 2 "The field index of the value to be used from tables. 1 is the key, 2 is typically the first value."
+  opt -r arith '' "Arithemetic expression, like \$F[1]-\$F[2]"
 }
 
 main() {
-  in::load \
-  | uc/reverse-mapping.pl \
-  | uc/count-tokens.pl \
+  local i
+  local fdKey
+  local fdThis
+  exec {fdKey}< <(in::load 1 | cut -d$'\t' -f1)
+  local fds=( $fdKey )
+  local param="/dev/fd/$fdKey"
+  for (( i=1; i<=${#in[@]}; i++ )); do
+    exec {fdThis}< <(in::load $i | cut -d$'\t' -f$nth)
+    fds+=( $fdThis )
+    param+=" /dev/fd/$fdThis"
+  done
+
+  paste -d$'\t' "${(z)param}" \
+  | uc/table-arith.pl "$arith" \
   | out::save
-  return $?
+  local rslt=$?
+
+  for fd in "${fds[@]}"; do
+    exec {fd}<&-
+  done
+  return $rslt
 }
 
 source Mordio/mordio

@@ -22,7 +22,7 @@ use warnings;
 use utf8;
 use open qw(:std :utf8);
 
-while (<>) {
+while (<STDIN>) {
   chomp;
   my ($id, $content) = split /\t/, $_, 2;
   if (!defined $content) {

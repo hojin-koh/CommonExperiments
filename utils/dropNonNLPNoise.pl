@@ -26,13 +26,13 @@ while (<>) {
   chomp;
   my ($id, $content) = split /\t/, $_, 2;
   if (!defined $content) {
-    print "$id\n";
+    print "$id\t\n";
     next;
   }
 
   $content =~ s@[a-zA-Z]{3,7}://[-_○A-Za-z0-9./#%=?&]+@ @gu; # Delete things that looks remotely like URLs
 
-  $content =~ s/([^-\/_+\$%@#*\p{L}\p{N}\p{Z}\p{S}]|[●])/ /gu; # Only keep things useful to us
+  $content =~ s/([^-\/+\$%@\p{L}\p{N}\p{Z}\p{S}]|[●])/ /gu; # Only keep things useful to us
 
   # Separate CJK things and non-CJK things
   my $charBlock = '[\p{CJK}\p{Bopomofo}\p{Hiragana}\p{Katakana}]';

@@ -32,7 +32,7 @@ def main():
         if not w or len(w) < 2 or len(w) > 4: continue
 
         freqCumulative = float(objSheet.cell_value(rowx=i, colx=4))
-        if freqCumulative >= 80: break
+        if freqCumulative >= 90: break
 
         w = objOpenCC.convert(w)
         if re.search(R'[一二三四五六七八九十人你我他上下不無中了呢嗎嘛的是就很最較]|戰爭', w): continue

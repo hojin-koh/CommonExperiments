@@ -58,16 +58,17 @@ def main():
         aOrder.append(key)
 
     mAlloc = {} # Allocation of each key into "train" "dev" "test"
-    idThis = 0
+    #idThis = 0
     for label in sorted(maKeys):
-        for key in maKeys[label]:
+        lenLabel = len(maKeys[label])
+        for i, key in enumerate(maKeys[label]):
+            idThis = int(i * (nSetTotal / lenLabel))
             if idThis in setTrain:
                 mAlloc[key] = 'train'
             elif idThis in setTest:
                 mAlloc[key] = 'test'
             else:
                 mAlloc[key] = 'dev'
-            idThis = (idThis+1) % nSetTotal
 
     for key in aOrder:
         print(F'{key}\t{mAlloc[key]}')

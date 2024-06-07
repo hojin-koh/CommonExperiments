@@ -26,13 +26,16 @@ main() {
     curl -L -o "$in" 'https://language.moe.gov.tw/001/Upload/Files/site_content/M0001/respub/download/dict_concised_2014_20240326.zip'
   fi
 
+  if ! out::isReal; then
+    err "Unreal table output not supported" 15
+  fi
+
   info "Extracting to a temporary directory ..."
   local dirTemp
   putTemp dirTemp
   bsdtar xf "$in" -C "$dirTemp"
 
   us/parse-twmoe-dict.py "$dirTemp"/*.xlsx \
-  | sort -u \
   | out::save
   return $?
 }

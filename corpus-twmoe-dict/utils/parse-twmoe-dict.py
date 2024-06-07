@@ -26,7 +26,12 @@ def main():
     for i in range(2, objSheet.max_row+1):
         w = objSheet.cell(i, 1).value
         if not w or len(w) < 2: continue
-        w = "".join(c for c in w if not unicodedata.category(c).startswith("P"))
+        # Delete punctuations
+        w = "".join(c for c in w if not unicodedata.category(c).startswith('P'))
+
+        # Blacklist
+        if w.endswith("縣") and w != "知縣": continue
+
         print(w)
 
 if __name__ == '__main__':

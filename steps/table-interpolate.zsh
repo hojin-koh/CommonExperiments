@@ -12,31 +12,36 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Normalize unicode in the keys of a table"
-dependencies=( "uc/normalize-unicode.py" "uc/table-merge.py" "uc/interpolate-count.py" )
+description="Merge counts or scores from multiple tables"
+dependencies=( "uc/interpolate-count.py" )
 
 setupArgs() {
   opt -r out '' "Output table"
   optType out output table
 
-  opt -r in '' "Input table"
+  opt -r in '()' "Input tables"
   optType in input table
-  opt -r conv '' "Input character mapping table"
-  optType conv input table
+  opt w '()' "Input weights"
 
-  opt mode 'merge' "How to deal with duplicated keys, merge or interpolate"
+  opt normalize '' "Whether to normalize total number to the sum of the 1st input"
 }
 
 main() {
-  if ! out::isReal; then
-    err "Unreal table output not supported" 15
+  local i
+  local param="uc/interpolate-count.py"
+  if [[ "$normalize" == "true" ]]; then
+    param+=" --normalize"
+  fi
+  for (( i=1; i<=${#in[@]}; i++ )); do
+    param+=" ${w[$i]-1.0} <($(in::getLoader $i))"
+  done
+
+  if out::isReal; then
+    eval "$param" | out::save
+    return $?
   fi
 
-  in::load \
-  | uc/normalize-unicode.py <(conv::load) key \
-  | tee 14455 \
-  | if [[ "$mode" == "merge" ]]; then uc/table-merge.py --set; else uc/interpolate-count.py 1.0 /dev/stdin; fi \
-  | out::save
+  echo "$param" | out::save
   return $?
 }
 

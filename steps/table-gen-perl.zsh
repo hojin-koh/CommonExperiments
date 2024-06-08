@@ -24,10 +24,19 @@ setupArgs() {
 }
 
 main() {
-  in::load \
-  | perl -CSAD -nle "$rule" \
-  | out::save
-  return $?
+  info "ID conversion rule: $rule"
+
+  if out::isReal; then
+    in::load \
+    | perl -CSAD -nle "$rule" \
+    | out::save
+    return $?
+  fi
+
+  (
+    in::getLoader
+    printf " | perl -CSAD -nle '%s'" "$rule"
+  ) | out::save
 }
 
 source Mordio/mordio

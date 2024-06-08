@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Normalize unicode in the keys of a table"
+dependencies=( "uc/normalize-unicode.py" )
 
 setupArgs() {
   opt -r in '' "Input text"
@@ -24,6 +25,10 @@ setupArgs() {
 }
 
 main() {
+  if ! out::isReal; then
+    err "Unreal table output not supported" 15
+  fi
+
   in::load \
   | uc/normalize-unicode.py <(conv::load) text \
   | out::save

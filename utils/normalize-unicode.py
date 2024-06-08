@@ -45,42 +45,25 @@ def main():
 
     if sys.argv[2] == "text":
         for line in sys.stdin:
-            eid, text = line.split('\t', 1)
+            eid, text = line.strip().split('\t', 1)
             text = normalize(objTrans, text.strip())
 
             print('{}\t{}'.format(eid, text))
 
     elif sys.argv[2] == "key":
-        mContent = {}
-        aOrder = []
-        hasNumber = True
         for line in sys.stdin:
             try:
-                key, num = line.split('\t', 1)
-                if num.find('.') != -1:
-                    num = float(num.strip())
-                else:
-                    num = int(num.strip())
+                key, value = line.strip().split('\t', 1)
             except:
-                hasNumber = False
-                num = 1
+                value = None
                 key = line.strip()
 
             key = normalize(objTrans, key)
 
-            if key not in mContent:
-                aOrder.append(key)
-                mContent[key] = num
+            if value:
+                print(F"{key}\t{value}")
             else:
-                mContent[key] += num
-
-        if hasNumber:
-            for k in aOrder:
-                v = mContent[k]
-                print(F'{k}\t{v}')
-        else:
-            for k in aOrder:
-                print(F'{k}')
+                print(F"{key}")
 
 if __name__ == '__main__':
     main()

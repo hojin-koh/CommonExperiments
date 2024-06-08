@@ -40,8 +40,9 @@ def main():
         cntThis = 0
 
         for line in fileinput.input(fname):
+            if len(line.strip()) <= 0: continue
             try:
-                key, num = line.split('\t', 1)
+                key, num = line.strip().split('\t', 1)
                 if num.find('.') != -1:
                     num = float(num.strip())
                     isFloat = True
@@ -51,7 +52,6 @@ def main():
                 hasNumber = False
                 num = 1
                 key = line.strip()
-            if len(key) <= 0: continue
 
             cntThis += num
             num *= 1.0 * w # Force into float

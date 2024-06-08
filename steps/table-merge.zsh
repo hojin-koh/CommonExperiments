@@ -12,40 +12,37 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Merge two tables"
+description="Merge table entries"
+dependencies=( "uc/table-merge.py" )
 
 setupArgs() {
-  opt -r in '()' "Input tables"
-  optType in input table
-  opt w '()' "Input weights"
-
   opt -r out '' "Output table"
   optType out output table
 
-  opt normalize '' "Whether to normalize total number to the sum of the 1st input"
+  opt -r in '()' "Input tables"
+  optType in input table
+
+  opt set '' "Whether to use python set to process values"
 }
 
 main() {
   local i
-  local param=""
-  local fds=()
-  if [[ "$normalize" == "true" ]]; then
-    param="--normalize"
-  fi
+  local param="("
   for (( i=1; i<=${#in[@]}; i++ )); do
-    exec {fdThis}< <(in::load $i)
-    fds+=( $fdThis )
-    param+=" ${w[$i]-1.0} /dev/fd/$fdThis"
+    param+=" $(in::getLoader $i);"
   done
+  param+=") | uc/table-merge.py"
+  if [[ "$set" == "true" ]]; then
+    param+=" --set"
+  fi
 
-  uc/merge-count.py "${(z)param}" \
-  | out::save
-  local rslt=$?
+  if out::isReal; then
+    eval "$param" | out::save
+    return $?
+  fi
 
-  for fd in "${fds[@]}"; do
-    exec {fd}<&-
-  done
-  return $rslt
+  echo "$param" | out::save
+  return $?
 }
 
 source Mordio/mordio

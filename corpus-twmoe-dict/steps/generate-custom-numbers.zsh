@@ -20,6 +20,10 @@ setupArgs() {
 }
 
 main() {
+  if ! out::isReal; then
+    err "Unreal table output not supported" 15
+  fi
+
   (
   for i in 一 二 三 四 五 六 七 八 九; do
     echo "十$i"
@@ -30,13 +34,13 @@ main() {
 
   # https://resources.hkedcity.net/downloadResource.php?rid=1314569312&pid=991692700
   for i in 一 兩 三 四 五 六 七 八 九; do
-    for t in 百 千 萬 億 兆 種 組 步 人 個 片 把 本 家 件 條 句 項 座 行 筆 篇 部 場 副 層 次 滴 疊 份 台 頭 隻 支 棵 顆 塊 株 段 串 週 星期 年; do
+    for t in 百 千 萬 億 兆 種 組 步 人 個 片 把 本 家 件 條 句 項 座 行 筆 篇 部 場 副 層 次 滴 份 台 頭 隻 支 棵 顆 塊 株 段 串; do
       echo "$i$t"
     done
   done
 
   for i in 一 兩; do
-    for t in 端 面 邊 側 杯 群 聲 首 位 環 方; do
+    for t in 端 面 邊 側 杯 群 聲 首 位 環 方 疊; do
       echo "$i$t"
     done
   done
@@ -57,14 +61,24 @@ main() {
     done
   done
 
+  # Significant events
+  echo "九二一"
+  echo "九一一"
+  echo "九么么"
+  echo "三一一"
+  echo "六四"
+
   # Misc
   echo "一一九"
+  echo "么么九"
   echo "一一零"
   echo "十大建設"
   echo "之一"
   echo "一家人"
   echo "十項"
-  ) | out::save
+  ) | sort -u \
+  | gawk '{print $1 "\tcustom-numbers"}' \
+  | out::save
   return $?
 }
 

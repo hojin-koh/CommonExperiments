@@ -12,23 +12,31 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Import world country list from https://zh.wikipedia.org/zh-tw/%E4%B8%96%E7%95%8C%E6%94%BF%E5%8D%80%E7%B4%A2%E5%BC%95"
+description="Main run script of the experiment corpus-twmoe-dict"
 
-setupArgs() {
-  opt -r in '' "Original wikipedia html file"
-  opt -r out '' "Output table"
-  optType out output table
-}
+DIR="ds"
+PUB="dl"
+ADICT=()
 
 main() {
-  if [[ ! -f "$in" ]]; then
-    info "Downloading the data from zh.wikipedia.org ..."
-    curl -L -o "$in" 'https://zh.wikipedia.org/zh-tw/%E4%B8%96%E7%95%8C%E6%94%BF%E5%8D%80%E7%B4%A2%E5%BC%95'
-  fi
+  # Variants and character frequency
+  srun/get-vars.zsh
 
-  us/parse-world-country-list.py < "$in" \
-  | out::save
-  return $?
+  # Minimal general-purpose dictionary
+  ADICT+=( "$DIR/mini-unnorm/merged-unnorm.zsh" )
+  srun/get-mini.zsh
+
+  # Minimal proper-noun dictionary
+  ADICT+=( "$DIR/mini-unnorm/ppn-unnorm.zsh" )
+  srun/get-ppnmini.zsh
+
+  # Merge the two mini parts of the dictionary
+  sc/table-merge.zsh --set out="$DIR/tw-mini-unnorm.zsh" \
+    "in=${^ADICT[@]}"
+
+  sc/normalize-unicode-key.zsh out="$PUB/tw-dict-mini.zst" --mode=merge \
+    in="$DIR/tw-mini-unnorm.zsh" conv="$PUB/tw-variants.zst"
+
 }
 
 source Mordio/mordio

@@ -14,14 +14,16 @@
 # limitations under the License.
 description="Import twmoe variants table from https://github.com/kcwu/moedict-variants"
 # Backup: https://web.archive.org/web/20240602054933/https://raw.githubusercontent.com/kcwu/moedict-variants/master/list.txt
+dependencies=( "us/parse-variants-confusables.py" )
 
 setupArgs() {
+  opt -r out '' "Output table"
+  optType out output table
+
   opt -r in '' "Original Data File"
   opt -r confusable '' "ICU's confusable table"
   opt -r infreq '' "Input character frequency table"
   optType infreq input table
-  opt -r out '' "Output table"
-  optType out output table
 }
 
 main() {
@@ -33,6 +35,10 @@ main() {
   if [[ ! -f "$confusable" ]]; then
     info "Downloading the ICU confusable data 2024-04-12 from github.com ..."
     curl -L -o "$confusable" 'https://raw.githubusercontent.com/unicode-org/icu/ba1ecef7de5b4bbaa35e7dc56f8f36ddd6dff2bb/icu4c/source/data/unidata/confusables.txt'
+  fi
+
+  if ! out::isReal; then
+    err "Unreal table output not supported" 15
   fi
 
   us/parse-variants-confusables.py "$confusable" <(infreq::load) < "$in" \

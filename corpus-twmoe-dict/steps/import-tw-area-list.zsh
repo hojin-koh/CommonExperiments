@@ -13,11 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Import Taiwan area list from https://gist.github.com/vinta/079cb8d4da486f471365c31388ed1b85"
+dependencies=( "us/parse-tw-area-list.py" )
 
 setupArgs() {
-  opt -r in '' "Original python file"
   opt -r out '' "Output table"
   optType out output table
+  opt -r in '' "Original python file"
 }
 
 main() {
@@ -26,7 +27,13 @@ main() {
     curl -L -o "$in" 'https://gist.githubusercontent.com/vinta/079cb8d4da486f471365c31388ed1b85/raw/c8dc91acc476aea98f5a6f1db59df966e4e3d4c1/%25E5%258F%25B0%25E7%2581%25A3%25E5%2590%2584%25E8%25A1%258C%25E6%2594%25BF%25E5%258D%2580%25E5%2588%2597%25E8%25A1%25A8.py'
   fi
 
+  if ! out::isReal; then
+    err "Unreal table output not supported" 15
+  fi
+
   us/parse-tw-area-list.py < "$in" \
+  | sort -u \
+  | gawk '{print $1 "\ttw-area-list"}' \
   | out::save
   return $?
 }

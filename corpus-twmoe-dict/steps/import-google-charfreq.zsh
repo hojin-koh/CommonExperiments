@@ -13,11 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Import google chinese character frequency table from google n-gram at https://storage.googleapis.com/books/ngrams/books/datasetsv3.html"
+dependencies=( "us/parse-google-charfreq.py" )
 
 setupArgs() {
-  opt -r in '' "Original Data Archive"
   opt -r out '' "Output table"
   optType out output table
+  opt -r in '' "Original Data Archive"
 }
 
 main() {
@@ -26,9 +27,14 @@ main() {
     curl -L -o "$in" 'http://storage.googleapis.com/books/ngrams/books/20200217/chi_sim/1-00000-of-00001.gz'
   fi
 
+  if ! out::isReal; then
+    err "Unreal table output not supported" 15
+  fi
+
   gunzip -c "$in" \
   | perl -CSAD -nle 'print if /^\p{Han}\t/' \
   | us/parse-google-charfreq.py \
+  | sort -k2,2 -nr \
   | out::save
   return $?
 }

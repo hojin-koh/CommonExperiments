@@ -13,17 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Import twmoe zhuyin combinations from https://language.moe.gov.tw/001/Upload/Files/site_content/M0001/respub/dict_concised_download.html"
+dependencies=( "us/parse-twmoe-zhuyin.py" )
 
 setupArgs() {
-  opt -r in '' "Original data archive"
   opt -r out '' "Output table"
   optType out output table
+  opt -r in '' "Original data archive"
 }
 
 main() {
   if [[ ! -f "$in" ]]; then
     info "Downloading the data from language.moe.gov.tw ..."
     curl -L -o "$in" 'https://language.moe.gov.tw/001/Upload/Files/site_content/M0001/respub/download/dict_concised_2014_20240326.zip'
+  fi
+
+  if ! out::isReal; then
+    err "Unreal table output not supported" 15
   fi
 
   info "Extracting to a temporary directory ..."
@@ -33,6 +38,7 @@ main() {
 
   us/parse-twmoe-zhuyin.py "$dirTemp"/*.xlsx \
   | sort -u \
+  | gawk '{print $1 "\ttwmoe-zhuyin"}' \
   | out::save
   return $?
 }

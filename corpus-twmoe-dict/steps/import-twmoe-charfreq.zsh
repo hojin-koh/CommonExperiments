@@ -13,17 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Import twmoe character frequency table from https://language.moe.gov.tw/001/Upload/files/SITE_CONTENT/M0001/PRIMARY/shrest2-2.htm"
+dependencies=( "us/parse-twmoe-charfreq.py" )
 
 setupArgs() {
-  opt -r in '' "Original Data Archive"
   opt -r out '' "Output table"
   optType out output table
+  opt -r in '' "Original Data Archive"
 }
 
 main() {
   if [[ ! -f "$in" ]]; then
     info "Downloading the data from language.moe.gov.tw ..."
     curl -L -o "$in" 'https://language.moe.gov.tw/001/Upload/files/SITE_CONTENT/M0001/PRIMARY/download/shrest2.zip'
+  fi
+
+  if ! out::isReal; then
+    err "Unreal table output not supported" 15
   fi
 
   info "Extracting to a temporary directory ..."

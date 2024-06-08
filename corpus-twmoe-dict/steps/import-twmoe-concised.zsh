@@ -13,11 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Import twmoe basic dictionary from https://language.moe.gov.tw/001/Upload/Files/site_content/M0001/respub/dict_concised_download.html"
+dependencies=( "us/parse-twmoe-concised.py" )
 
 setupArgs() {
-  opt -r in '' "Original data archive"
   opt -r out '' "Output table"
   optType out output table
+  opt -r in '' "Original data archive"
 }
 
 main() {
@@ -35,7 +36,9 @@ main() {
   putTemp dirTemp
   bsdtar xf "$in" -C "$dirTemp"
 
-  us/parse-twmoe-dict.py "$dirTemp"/*.xlsx \
+  us/parse-twmoe-concised.py "$dirTemp"/*.xlsx \
+  | sort -u \
+  | gawk '{print $1 "\ttwmoe-concised"}' \
   | out::save
   return $?
 }

@@ -14,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Parse THUOCL dictionaries from China: https://github.com/thunlp/THUOCL
+# Parse dictionaries in "word freq" format
 
+import re
 import sys
 import unicodedata
 
@@ -23,23 +24,30 @@ from opencc import OpenCC
 
 def main():
     objOpenCC = OpenCC('s2twp.json')
-    thres = int(sys.argv[1])
-    maxchar = int(sys.argv[2])
+    conv = int(sys.argv[1]) # 1=Convert, 0=noconvert
+    thres = int(sys.argv[2])
+    maxchar = int(sys.argv[3])
 
     for line in sys.stdin:
-        w, freq = line.strip().split('\t', 1)
+        aRslt = line.strip().split(maxsplit=1)
+        if len(aRslt) == 0: continue
+
+        w = aRslt[0]
         try:
-            freq = int(freq)
+            freq = int(aRslt[1])
         except:
             freq = thres+1
+
         if len(w) < 2 or len(w) > maxchar: continue
-        if freq < thres: break
-        w = objOpenCC.convert(w)
+        if freq < thres: continue
+        if conv == 1:
+            w = objOpenCC.convert(w)
 
         # Blacklist
-        #if w == '': continue
+        if re.search(R"[一二三四五六七八九十零了呢嗎嘛們人的]", w): continue
+        if len(w) >= 3 and any(w.endswith(c) for c in ("市", "縣", "省", "區", "鄉", "鎮")): continue
 
-        print(F'{w}')
+        print(w)
 
 if __name__ == '__main__':
     main()

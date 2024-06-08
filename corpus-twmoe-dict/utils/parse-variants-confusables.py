@@ -33,6 +33,7 @@ def main():
     # Read ICU confusable table
     mConfusable = {}
     for line in fileinput.input(sys.argv[1]):
+        line = line.strip()
         # Don't touch Japanese texts
         if line.find("KATAKANA") != -1 or line.find("HIRAGANA") != -1:
             continue
@@ -57,7 +58,7 @@ def main():
     # Read character frequency table
     mFreq = {}
     for line in fileinput.input(sys.argv[2]):
-        c, freq = line.split('\t', 1)
+        c, freq = line.strip().split('\t', 1)
         if len(c) != 1: continue
         mFreq[c] = int(freq)
 

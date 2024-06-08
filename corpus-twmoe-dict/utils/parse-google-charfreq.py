@@ -20,7 +20,6 @@ import fileinput
 
 from opencc import OpenCC
 
-
 def main():
     objOpenCC = OpenCC('s2tw.json')
 

@@ -14,34 +14,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Parse a word frequency list into dictionary, supposedly from https://github.com/bedlate/cn-corpus
+# Parse idioms from moedict
 
 import re
 import sys
 import unicodedata
 
-import xlrd
-from opencc import OpenCC
+from bs4 import BeautifulSoup
 
 def main():
-    objOpenCC = OpenCC('s2twp.json')
-    objSheet = xlrd.open_workbook(sys.argv[1]).sheet_by_index(0)
+    mode = sys.argv[1]
+    maxChar = int(sys.argv[2])
 
-    for i in range(7, objSheet.nrows):
-        w = objSheet.cell_value(rowx=i, colx=1)
-        if not w or len(w) < 2 or len(w) > 4: continue
-
-        freqCumulative = float(objSheet.cell_value(rowx=i, colx=4))
-        if freqCumulative >= 90: break
-
-        w = objOpenCC.convert(w)
-
-        # Blacklist
-        if re.search(R"[一二三四五六七八九十零中黨了呢嗎嘛們人的]|戰爭", w): continue
-        if any(w.startswith(c) for c in ("最","很","較","不")): continue
-        if len(w) == 3 and any(w.endswith(c) for c in ("市", "縣", "省")): continue
-
+    objSoup = BeautifulSoup(sys.stdin.read(), 'html.parser')
+    div = objSoup.find_all('div', id='result')[0]
+    for link in div.find_all('a'):
+        w = link.get_text(strip=True)
         w = "".join(c for c in w if not unicodedata.category(c).startswith("P"))
+        if not w or len(w) < 2 or len(w) > maxChar: continue
+
+        if re.search("兒", w): continue
+
+        # Post-processing some weird words
+        if mode == "idioms":
+            if len(w) == 8:
+                print(w[:4])
+                print(w[4:])
+            if len(w) == 10:
+                print(w[:5])
+                print(w[5:])
+
         print(w)
 
 if __name__ == '__main__':

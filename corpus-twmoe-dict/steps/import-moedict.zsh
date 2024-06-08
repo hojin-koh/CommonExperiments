@@ -12,28 +12,42 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Import China city list from https://github.com/small-dream/China_Province_City"
-dependencies=( "us/parse-china-city-list.py" )
+description="Import idiom list from moedict"
+dependencies=( "us/parse-moedict.py" )
 
 setupArgs() {
   opt -r out '' "Output table"
   optType out output table
-  opt -r in '' "Original json file"
+  opt -r in '' "Original moedict html directory"
+}
+
+processOne() {
+  local id="$1"
+  local filter="$2"
+  shift; shift;
+
+  if [[ ! -f "$in/$id.txt" ]]; then
+    info "Downloading the data from moedict.tw ..."
+    curl -L -o "$in/$id.txt" "https://www.moedict.tw/=$filter"
+  fi
+  us/parse-moedict.py "$@" < "$in/$id.txt" | gawk '{print $1 "'"\tmoedict-$id"'"}'
 }
 
 main() {
-  if [[ ! -f "$in" ]]; then
-    info "Downloading the data from github.com ..."
-    curl -L -o "$in" 'https://github.com/small-dream/China_Province_City/raw/master/2022%E5%B9%B4%E6%9C%80%E6%96%B0%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD%E5%8E%BF%E4%BB%A5%E4%B8%8A%E8%A1%8C%E6%94%BF%E5%8C%BA%E5%88%92%E4%BB%A3%E7%A0%81.json'
-  fi
+  mkdir -p "$in"
 
   if ! out::isReal; then
     err "Unreal table output not supported" 15
   fi
 
-  us/parse-china-city-list.py < "$in" \
-  | sort -u \
-  | gawk '{print $1 "\tchina-city-list"}' \
+  (
+    processOne idioms "諺語" idioms 10
+    processOne honorifics "稱謂" - 3
+    processOne sports "球類" - 3
+    processOne units "量詞" - 3
+    processOne buntei "文體名" - 3
+    processOne holy "節氣" - 2
+  ) | sort -u \
   | out::save
   return $?
 }

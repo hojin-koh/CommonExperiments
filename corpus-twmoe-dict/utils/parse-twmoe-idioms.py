@@ -27,6 +27,15 @@ def main():
         w = objSheet.cell_value(rowx=i, colx=1)
         if not w or len(w) < 2: continue
         w = "".join(c for c in w if not unicodedata.category(c).startswith("P"))
+
+        # Post-processing some weird words
+        if len(w) == 7:
+            if w == '醉翁之意不在酒' or w.endswith("又折兵"):
+                print(w[:4])
+        elif len(w) == 8:
+            print(w[:4])
+            print(w[4:])
+
         print(w)
 
 if __name__ == '__main__':

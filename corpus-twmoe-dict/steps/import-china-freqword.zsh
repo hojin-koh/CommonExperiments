@@ -13,11 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Import china's word frequency list into dictionary from https://github.com/bedlate/cn-corpus"
+dependencies=( "us/parse-china-freqword.py" )
 
 setupArgs() {
-  opt -r in '' "Original data archive"
   opt -r out '' "Output table"
   optType out output table
+  opt -r in '' "Original data archive"
 }
 
 main() {
@@ -26,7 +27,13 @@ main() {
     curl -L -o "$in" 'https://github.com/bedlate/cn-corpus/raw/master/%E7%8E%B0%E4%BB%A3%E6%B1%89%E8%AF%AD%E8%AF%AD%E6%96%99%E5%BA%93%E8%AF%8D%E9%A2%91%E8%A1%A8.xls'
   fi
 
+  if ! out::isReal; then
+    err "Unreal table output not supported" 15
+  fi
+
   us/parse-china-freqword.py "$in" \
+  | sort -u \
+  | gawk '{print $1 "\tchina-freqword"}' \
   | out::save
   return $?
 }

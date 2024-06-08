@@ -12,21 +12,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Import world country list from https://zh.wikipedia.org/zh-tw/%E5%90%84%E5%9B%BD%E9%A6%96%E9%83%BD%E5%88%97%E8%A1%A8"
+description="Import OpenVanilla Bopomofo word frequency list into dictionary from https://github.com/openvanilla/McBopomofo"
+dependencies=( "us/parse-text-wordfreq.py" )
 
 setupArgs() {
-  opt -r in '' "Original wikipedia html file"
   opt -r out '' "Output table"
   optType out output table
+  opt -r in '' "Original data archive"
 }
 
 main() {
   if [[ ! -f "$in" ]]; then
-    info "Downloading the data from zh.wikipedia.org ..."
-    curl -L -o "$in" 'https://zh.wikipedia.org/zh-tw/%E5%90%84%E5%9B%BD%E9%A6%96%E9%83%BD%E5%88%97%E8%A1%A8'
+    info "Downloading the data from github.com ..."
+    curl -L -o "$in" 'https://raw.githubusercontent.com/openvanilla/McBopomofo/master/Source/Data/phrase.occ'
   fi
 
-  us/parse-world-capital-list.py < "$in" \
+  if ! out::isReal; then
+    err "Unreal table output not supported" 15
+  fi
+
+  us/parse-text-wordfreq.py 0 1000 3 <"$in" \
+  | sort -u \
+  | gawk '{print $1 "\topenvanilla-bpmf"}' \
   | out::save
   return $?
 }

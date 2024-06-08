@@ -13,28 +13,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Import THUOCL dictionaries from China: https://github.com/thunlp/THUOCL"
+dependencies=( "us/parse-text-wordfreq.py" )
 
 setupArgs() {
-  opt -r in '' "Original input directory"
   opt -r out '' "Output table"
   optType out output table
+  opt -r in '' "Original input directory"
+}
+
+processOne() {
+  local id="$1"
+  shift;
+
+  if [[ ! -f "$in/$id.txt" ]]; then
+    info "Downloading the data from github.com/THUOCL ..."
+    curl -L -o "$in/$id.txt" "https://raw.githubusercontent.com/thunlp/THUOCL/master/data/THUOCL_$id.txt"
+  fi
+  us/parse-text-wordfreq.py "$@" < "$in/$id.txt" | gawk '{print $1 "'"\tthuocl-$id"'"}'
 }
 
 main() {
   mkdir -p "$in"
-  for t in food law medical lishimingren caijing; do
-    if [[ ! -f "$in/$t.txt" ]]; then
-      curl -L -o "$in/$t.txt" "https://raw.githubusercontent.com/thunlp/THUOCL/master/data/THUOCL_$t.txt"
-    fi
-  done
+
+  if ! out::isReal; then
+    err "Unreal table output not supported" 15
+  fi
 
   (
-    ( us/parse-thuocl-dict.py 10000 4 <"$in/food.txt")
-    ( us/parse-thuocl-dict.py 100000 3 <"$in/law.txt")
-    ( us/parse-thuocl-dict.py 2000 3 <"$in/medical.txt")
-    ( us/parse-thuocl-dict.py 750 4 <"$in/lishimingren.txt")
-    ( us/parse-thuocl-dict.py 11900 5 <"$in/caijing.txt")
-  ) | out::save
+    processOne food 1 10000 4
+    processOne law 1 100000 3
+    processOne medical 1 2000 3
+    processOne lishimingren 1 750 4
+    processOne caijing 1 11900 5
+  ) | sort -u \
+  | out::save
   return $?
 }
 

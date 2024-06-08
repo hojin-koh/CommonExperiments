@@ -22,18 +22,18 @@ fi
 # Link specific experiment scripts (if present)
 # Usually, it is from the exp-specific link.sh calling this script
 if [[ -n "${DIR_SPECIFICEXP-}" ]]; then
-  EXPNAME="${DIR_SPECIFICEXP##*/}"
   if [[ ! -h "$TARGET/ss" ]]; then
     ln -sTv "$DIR_SPECIFICEXP/steps" "$TARGET/ss"
   fi
   if [[ ! -h "$TARGET/us" ]]; then
     ln -sTv "$DIR_SPECIFICEXP/utils" "$TARGET/us"
   fi
-  if [[ ! -h "$TARGET/run" ]]; then
-    ln -sTv "$DIR_SPECIFICEXP/run" "$TARGET/run"
+  # The reason this is called srun is because I want run.zsh to be auto-completed with just ./ru<tab>
+  if [[ ! -h "$TARGET/srun" ]]; then
+    ln -sTv "$DIR_SPECIFICEXP/run" "$TARGET/srun"
   fi
-  if [[ ! -h "$TARGET/Makefile" ]]; then
-    ln -sTv "run/Makefile" "$TARGET/Makefile"
+  if [[ ! -h "$TARGET/run.zsh" ]]; then
+    ln -sTv "srun/run.zsh" "$TARGET/run.zsh"
   fi
 fi # End if specific experiment present
 
@@ -51,11 +51,13 @@ fi
 
 # Experiment-specific data
 if [[ -n "${DIR_SPECIFICEXP-}" ]]; then
+  TGTNAME="$(basename "$TARGET")"
+
   # Link the data folder
   if [[ ! -e "$TARGET/ds" ]]; then
     if [[ -d "$TARGET/../../data" ]]; then
-      mkdir -pv "$TARGET/../../data/$EXPNAME"
-      ln -sTv "../../data/$EXPNAME" "$TARGET/ds"
+      mkdir -pv "$TARGET/../../data/$TGTNAME"
+      ln -sTv "../../data/$TGTNAME" "$TARGET/ds"
     else
       mkdir -pv "$TARGET/ds"
     fi
@@ -64,7 +66,6 @@ if [[ -n "${DIR_SPECIFICEXP-}" ]]; then
   # Link the results storage
   if [[ ! -e "$TARGET/rslt" ]]; then
     if [[ -d "$TARGET/../../rslt" ]]; then
-      TGTNAME="$(basename "$TARGET")"
       mkdir -pv "$TARGET/../../rslt/$TGTNAME"
       ln -sTv "../../rslt/$TGTNAME" "$TARGET/rslt"
     else

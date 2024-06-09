@@ -29,10 +29,31 @@ main() {
     err "Unreal table output not supported" 15
   fi
 
-  in::load \
-  | uc/normalize-unicode.py <(conv::load) text \
-  | out::save
+  local nr="$(in::getNR)"
+  if [[ $nr -lt 200000 ]]; then
+    in::load \
+    | processSub \
+    | lineProgressBar $nr \
+    | out::save
+  else
+    local dirTemp
+    putTemp dirTemp
+
+    # Get a list of all text
+    in::load | cut -d$'\t' -f1 > "$dirTemp/all.list"
+
+    in::load \
+    | doParallelPipeText "$nj" "$nr" "$dirTemp/all.list" \
+        "$dirTemp" \
+        "processSub" \
+    | out::save
+  fi
+
   return $?
+}
+
+processSub() {
+  uc/normalize-unicode.py <(conv::load) text
 }
 
 source Mordio/mordio

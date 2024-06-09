@@ -40,15 +40,11 @@ def main():
 
         if key not in mTable:
             aOrder.append(key)
-            if modeSet:
-                mTable[key] = set()
-            else:
-                mTable[key] = []
+            mTable[key] = []
         if value:
-            if modeSet:
-                mTable[key].add(value)
-            else:
-                mTable[key].append(value)
+            if modeSet and value in mTable[key]:
+                continue
+            mTable[key].append(value)
 
     for k in aOrder:
         if len(mTable[k]) > 0:

@@ -34,7 +34,6 @@ main() {
 
   in::load \
   | uc/normalize-unicode.py <(conv::load) key \
-  | tee 14455 \
   | if [[ "$mode" == "merge" ]]; then uc/table-merge.py --set; else uc/interpolate-count.py 1.0 /dev/stdin; fi \
   | out::save
   return $?

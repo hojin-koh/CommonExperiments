@@ -41,8 +41,15 @@ main() {
     err "Unreal table output not supported" 15
   fi
 
-  us/parse-variants-confusables.py "$confusable" <(infreq::load) < "$in" \
-  | out::save
+  if [[ "$in" == *.txt ]]; then # Github version
+    us/parse-variants-confusables.py "$confusable" <(infreq::load) < "$in" \
+    | out::save
+  else # old dump version found on the internet https://mega.nz/file/lVAAhR4T#qE9JLx4mhfjHe_Zni_lahPUK2qc5c394_v973PuN28k
+    # This version will give you a very long and noisy table
+    tar xOf "$in" \
+    | us/parse-variants-confusables.py --old "$confusable" <(infreq::load) \
+    | out::save
+  fi
   return $?
 }
 

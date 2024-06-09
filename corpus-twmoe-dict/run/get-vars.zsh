@@ -36,8 +36,12 @@ main() {
 
   # === Part 20: Get the variant table and normalized frequency table ===
 
+  INPUTVAR="$DIR_DOWNLOAD/twmoe-variants.txt"
+  if [[ -f "craw/twmoe-variants-20191207.tar.zst" ]]; then
+    INPUTVAR="craw/twmoe-variants-20191207.tar.zst"
+  fi
   ss/import-twmoe-variants.zsh out="$PUB/tw-variants.zst" infreq="$DIR/charfreq-unnorm.zsh" \
-    in="$DIR_DOWNLOAD/twmoe-variants.txt" confusable="$DIR_DOWNLOAD/icu-confusable-20240412.txt"
+    in="$INPUTVAR" confusable="$DIR_DOWNLOAD/icu-confusable-20240412.txt"
 
   sc/normalize-unicode-key.zsh out="$PUB/tw-charfreq.zst" --mode=interpolate \
     in="$DIR/charfreq-unnorm.zsh" conv="$PUB/tw-variants.zst"

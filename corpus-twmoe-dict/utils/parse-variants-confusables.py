@@ -28,6 +28,11 @@ from opencc import OpenCC
 
 
 def main():
+    modeOld = False
+    if sys.argv[1] == "--old":
+        modeOld = True
+        sys.argv.pop(1)
+
     objOpenCC = OpenCC('s2tw.json')
 
     # Read ICU confusable table
@@ -68,14 +73,31 @@ def main():
     mVar = {} # Variants
     mVarId = {} # The reverse table of each variant chars
     for line in sys.stdin:
-        cid, tag, dumb, c, dumb = line.split('\t')
-        if len(c) != 1: continue
+        if modeOld:
+            dumb, line = line.split('\t', 1)
+            if len(line.strip()) == 0: continue
 
-        c = unicodedata.normalize('NFKC', c)
+            match = re.search(R'"row">(附 錄 字|異 體 字|正 字).*<code>([-A-Z0-9]+)</code>.*<big2>(?:<img alt=")?([^"<]+)["<]', line.strip())
+            cid = match.group(2)
+            if match.group(1) == "正 字":
+                tag = '正'
+            else:
+                tag = '異'
 
-        # Filter out non-standard custom characters
-        if unicodedata.category(c) == 'Co':
-            continue
+            c = match.group(3)
+            # Filter out non-standard custom characters and weird catches
+            if len(c) != 1: continue
+            if unicodedata.category(c) == 'Co':
+                continue
+            c = unicodedata.normalize('NFKC', c)
+        else:
+            cid, tag, dumb, c, dumb = line.split('\t')
+
+            # Filter out non-standard custom characters and weird catches
+            if len(c) != 1: continue
+            if unicodedata.category(c) == 'Co':
+                continue
+            c = unicodedata.normalize('NFKC', c)
 
         if c not in mVarId:
             mVarId[c] = []
@@ -93,7 +115,6 @@ def main():
                     }
             mCharId[c] = cid
             mVarId[c].append(cid)
-
 
     # Step 10: build missing good chars with lowest-numbered variant
     for cid in sorted(mVar):

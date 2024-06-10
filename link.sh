@@ -123,3 +123,6 @@ if [[ -f "$TARGET/us/requirements.txt" ]]; then
   echo "-r us/requirements.txt"
 fi
 ) > "$TARGET/requirements.txt"
+
+# By default, use a local directory as tmp
+echo "export TMPDIR=tmp" > "$TARGET/.env"

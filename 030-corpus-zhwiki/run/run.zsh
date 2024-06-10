@@ -37,6 +37,14 @@ main() {
   sc/text-split-sent-zh.zsh out="$PUB/text-sent.txt.zst" \
     in="$PUB/text-doc.txt.zst"
 
+  # Output the document-sentence mappings
+  sc/table-gen-perl.zsh out="$PUB/map-sent-doc.zst" \
+    rule='s/^(([^\t]+)-s[0-9]+.txt)\t.*/$1\t$2.txt/; print' \
+    in="$PUB/text-sent.txt.zst"
+
+  sc/table-rev-map.zsh out="$PUB/map-doc-sent.zst" \
+    in="$PUB/map-sent-doc.zst"
+
   # Segment sentence-level text
   sc/text-seg-words.zsh out="$PUB/w-sent.txt.zst" \
     dict="$LEX/tw-dict-v1-mini.zst" freq="$LEX/tw-charfreq.zst" \

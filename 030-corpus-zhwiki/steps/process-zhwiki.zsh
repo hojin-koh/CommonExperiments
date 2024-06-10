@@ -32,7 +32,7 @@ main() {
   putTemp dirTemp
 
   # Get a list of all text
-  in::load | cut -d$'\t' -f1 > "$dirTemp/all.list"
+  in::loadKey > "$dirTemp/all.list"
 
   in::load \
   | doParallelPipeText "$nj" "$nr" "$dirTemp/all.list" \

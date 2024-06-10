@@ -44,14 +44,6 @@ main() {
 
   sc/text-seg-chars.zsh out="$PUB/c-sent.txt.zst" \
     in="$PUB/text-sent.txt.zst"
-
-  # Segment document-level text
-  sc/text-seg-words.zsh out="$PUB/w-doc.txt.zst" \
-    dict="$LEX/tw-dict-v1-mini.zst" freq="$LEX/tw-charfreq.zst" \
-    in="$PUB/text-doc.txt.zst"
-
-  sc/text-seg-chars.zsh out="$PUB/c-doc.txt.zst" \
-    in="$PUB/text-doc.txt.zst"
 }
 
 source Mordio/mordio

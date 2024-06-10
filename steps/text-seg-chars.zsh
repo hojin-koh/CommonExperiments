@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Segment the text document into characters"
+dependencies=( "uc/text-delete-nonnlp.pl" )
 
 setupArgs() {
   opt -r in '' "Input text"
@@ -49,7 +50,7 @@ main() {
 }
 
 processSub() {
-  uc/dropNonNLPNoise.pl \
+  uc/text-delete-nonnlp.pl \
   | bc/mmseg /dev/null /dev/null
 }
 

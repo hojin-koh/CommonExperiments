@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Do some pretty terrible cleanups to reduce English/symbol noise in text"
+dependencies=( "uc/text-excleanup-zh.pl" )
 
 setupArgs() {
   opt -r in '' "Input text"
@@ -22,8 +23,14 @@ setupArgs() {
 }
 
 main() {
+  if ! out::isReal; then
+    err "Unreal table output not supported" 15
+  fi
+
+  local nr="$(in::getNR)"
   in::load \
-  | uc/text-cleanup-chinese-analysis.pl \
+  | uc/text-excleanup-zh.pl \
+  | lineProgressBar $nr \
   | out::save
   return $?
 }

@@ -34,7 +34,7 @@ main() {
   sc/table-merge.zsh --set out="$DIR/tw-mini-unnorm.zsh" \
     "in=${^ADICT[@]}"
 
-  sc/normalize-unicode-key.zsh out="$PUB/tw-dict-mini.zst" --mode=merge \
+  sc/normalize-unicode-key.zsh out="$PUB/tw-dict-v1-mini.zst" --mode=merge \
     in="$DIR/tw-mini-unnorm.zsh" conv="$PUB/tw-variants.zst"
 
 }

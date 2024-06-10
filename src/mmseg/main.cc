@@ -79,15 +79,20 @@ int main(int argc, char* argv[]) {
       if (static_cast<unsigned char>(*it) < 0x80) {
         std::cout << strSeg;
       } else { // Non-ASCII Part: need segmentation
-        std::u16string s = MMSeg::from_utf8(std::string(strSeg));
-        bool isFirstWord = true;
-        for (auto& w: mmseg.segment(s)) {
-          if (isFirstWord) {
-            isFirstWord = false;
-          } else {
-            std::cout << " ";
+        std::u32string s;
+        try {
+          s = MMSeg::from_utf8(std::string(strSeg));
+          bool isFirstWord = true;
+          for (auto& w: mmseg.segment(s)) {
+            if (isFirstWord) {
+              isFirstWord = false;
+            } else {
+              std::cout << " ";
+            }
+            std::cout << MMSeg::to_utf8(w);
           }
-          std::cout << MMSeg::to_utf8(w);
+        } catch(const std::exception& e) {
+          std::cerr << "ERROR converting to/from UTF-32 (" << eid << "): " << strSeg << std::endl;
         }
       }
 

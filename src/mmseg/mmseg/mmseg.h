@@ -19,16 +19,12 @@
 #include <sstream>
 #include <iostream>
 
-#if defined(_LIBCPP_BEGIN_NAMESPACE_STD)
 #include <codecvt>
-#else // gcc has no <codecvt>
-#include "utf8cpp/utf8.h"
-#endif
 
 class MMSeg {
 public:
-  using Char = char16_t;
-  using String = std::u16string;
+  using Char = char32_t;
+  using String = std::u32string;
   using StringIt = String::const_iterator;
   using StringP = std::pair<StringIt, StringIt>;
 
@@ -42,29 +38,15 @@ public:
       return s.substr(first, range);
   }
 
-#if defined(_LIBCPP_BEGIN_NAMESPACE_STD)
-  inline static std::string to_utf8(const std::u16string& in) {
-      std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> cv;
+  inline static std::string to_utf8(const std::u32string& in) {
+      std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> cv;
       return cv.to_bytes(in.data());
   }
 
-  inline static std::u16string from_utf8(const std::string& in) {
-      std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> cv;
+  inline static std::u32string from_utf8(const std::string& in) {
+      std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> cv;
       return cv.from_bytes(in.data());
   }
-#else // gcc has no <codecvt>
-  inline static std::string to_utf8(const std::u16string& in) {
-    std::string out;
-    utf8::utf16to8(in.begin(), in.end(), std::back_inserter(out));
-    return out;
-  }
-
-  inline static std::u16string from_utf8(const std::string& in) {
-    std::u16string out;
-    utf8::utf8to16(in.begin(), in.end(), std::back_inserter(out));
-    return out;
-  }
-#endif
 
 private:
   struct Trie {
@@ -171,7 +153,9 @@ private:
 public:
   std::vector<String> segment(const String& s, int depth = 3) {
     std::vector<String> ret;
-    auto start = s.begin(), end = s.end();
+    String s2 = s;
+    std::reverse(s2.begin(), s2.end());
+    auto start = s2.begin(), end = s2.end();
     while (start != end) {
       auto chunks = get_chunks(start, end, depth);
       auto best = std::max_element(chunks.begin(), chunks.end(), [&](const Chunk& x, const Chunk& y) {
@@ -181,9 +165,12 @@ public:
 //      for (auto& c: chunks) std::cout << c.to_string() << std::endl; std::cout << std::endl;
       auto& word = best->words_.front();
       start += length(word);
-      ret.emplace_back(String(word.first, word.second));
+      auto w = String(word.first, word.second);
+      std::reverse(w.begin(), w.end());
+      ret.emplace_back(w);
     }
 
+    std::reverse(ret.begin(), ret.end());
     return ret;
   }
 
@@ -194,6 +181,7 @@ public:
       std::string line;
       if (! std::getline(din, line)) break;
       auto word = from_utf8(trim(line));
+      std::reverse(word.begin(), word.end());
       dict_.add(word);
     }
     din.close();
@@ -244,7 +232,7 @@ int main(int argc, const char *argv[]) {
     std::cout << "Input String: ";
     std::string line;
     if (! std::getline(std::cin, line)) break;
-    std::u16string s = MMSeg::from_utf8(MMSeg::trim(line));
+    std::u32string s = MMSeg::from_utf8(MMSeg::trim(line));
     for (auto& w: mmseg.segment(s)) std::cout << MMSeg::to_utf8(w) << "  "; std::cout << std::endl;
   }
 

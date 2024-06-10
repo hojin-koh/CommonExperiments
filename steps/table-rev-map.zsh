@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Reverse a mapping to construct a value->key mapping table"
+dependencies=( "uc/reverse-mapping.pl" )
 
 setupArgs() {
   opt -r in '' "Input table"
@@ -22,9 +23,17 @@ setupArgs() {
 }
 
 main() {
-  in::load \
-  | uc/reverse-mapping.pl \
-  | out::save
+  if out::isReal; then
+    in::load \
+    | uc/reverse-mapping.pl \
+    | out::save
+    return $?
+  fi
+
+  (
+    in::getLoader
+    printf " | uc/reverse-mapping.pl"
+  ) | out::save
   return $?
 }
 

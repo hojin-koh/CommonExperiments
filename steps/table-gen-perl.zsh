@@ -27,8 +27,10 @@ main() {
   info "ID conversion rule: $rule"
 
   if out::isReal; then
+    local nr="$(in::getNR)"
     in::load \
     | perl -CSAD -nle "$rule" \
+    | lineProgressBar $nr \
     | out::save
     return $?
   fi
@@ -37,6 +39,7 @@ main() {
     in::getLoader
     printf " | perl -CSAD -nle '%s'" "$rule"
   ) | out::save
+  return $?
 }
 
 source Mordio/mordio

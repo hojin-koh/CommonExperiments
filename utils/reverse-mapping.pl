@@ -31,9 +31,12 @@ my %mValue;
 while (<STDIN>) {
     chomp;
     my ($key, $value) = split(/\t/, $_, 2);
+    my @aValues = split(/\s+/, $value);
     
     # Store document names under their corresponding value
-    push @{$mValue{$value}}, $key; 
+    for my $v (@aValues) {
+      push @{$mValue{$v}}, $key; 
+    }
 }
 
 # Output the transposed data

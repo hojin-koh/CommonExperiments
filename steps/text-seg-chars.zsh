@@ -27,13 +27,30 @@ main() {
   fi
 
   local nr="$(in::getNR)"
+  if [[ $nr -lt 500000 ]]; then
+    in::load \
+    | processSub \
+    | lineProgressBar $nr \
+    | out::save
+  else
+    local dirTemp
+    putTemp dirTemp
 
-  in::load \
-  | uc/dropNonNLPNoise.pl \
-  | bc/mmseg /dev/null /dev/null \
-  | lineProgressBar $nr \
-  | out::save
+    # Get a list of all text
+    in::loadKey > "$dirTemp/all.list"
+
+    in::load \
+    | doParallelPipeText "$[nj/2]" "$nr" "$dirTemp/all.list" \
+        "$dirTemp" \
+        "processSub" \
+    | out::save
+  fi
   return $?
+}
+
+processSub() {
+  uc/dropNonNLPNoise.pl \
+  | bc/mmseg /dev/null /dev/null
 }
 
 source Mordio/mordio

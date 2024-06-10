@@ -31,14 +31,31 @@ main() {
     err "Unreal table output not supported" 15
   fi
 
-  local nr="$(in::getNR)" # TODO: parallelize if nr > like 500000
+  local nr="$(in::getNR)"
+  if [[ $nr -lt 500000 ]]; then
+    in::load \
+    | processSub \
+    | lineProgressBar $nr \
+    | out::save
+  else
+    local dirTemp
+    putTemp dirTemp
 
-  in::load \
-  | uc/dropNonNLPNoise.pl \
-  | bc/mmseg <(dict::loadKey) <(freq::load) \
-  | lineProgressBar $nr \
-  | out::save
+    # Get a list of all text
+    in::loadKey > "$dirTemp/all.list"
+
+    in::load \
+    | doParallelPipeText "$[nj/2]" "$nr" "$dirTemp/all.list" \
+        "$dirTemp" \
+        "processSub" \
+    | out::save
+  fi
   return $?
+}
+
+processSub() {
+  uc/dropNonNLPNoise.pl \
+  | bc/mmseg <(dict::loadKey) <(freq::load)
 }
 
 source Mordio/mordio

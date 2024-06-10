@@ -12,21 +12,30 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Segment the text document into characters"
+description="Segment the text document into words"
 
 setupArgs() {
   opt -r in '' "Input text"
   optType in input text
   opt -r out '' "Output text"
   optType out output text
+
+  opt -r dict '' "Word dictionary table"
+  optType dict input table
+  opt -r freq '' "Char frequency table"
+  optType freq input table
 }
 
 main() {
+  if ! out::isReal; then
+    err "Unreal table output not supported" 15
+  fi
+
   local nr="$(in::getNR)" # TODO: parallelize if nr > like 500000
 
   in::load \
   | uc/dropNonNLPNoise.pl \
-  | bc/mmseg /dev/null /dev/null \
+  | bc/mmseg <(dict::loadKey) <(freq::load) \
   | lineProgressBar $nr \
   | out::save
   return $?

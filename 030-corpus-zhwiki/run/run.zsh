@@ -15,7 +15,7 @@
 description="Main run script to get an usable set of zhwiki data"
 
 DIR="ds"
-LEX="dl"
+LEX="mc/lexicon"
 PUB="dc/zhwiki"
 DIR_DOWNLOAD="craw/download-zhwiki"
 

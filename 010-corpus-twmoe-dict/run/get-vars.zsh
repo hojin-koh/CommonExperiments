@@ -16,7 +16,7 @@ description="Get the variant and charfreq"
 
 DIR_DOWNLOAD="craw/download-charfreq"
 DIR="ds/charvar"
-PUB="dl"
+PUB="mc/lexicon"
 AFREQ=()
 
 

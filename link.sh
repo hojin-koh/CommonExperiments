@@ -48,6 +48,27 @@ if [[ ! -e "$TARGET/craw" ]]; then
   fi
 fi
 
+# Link the general processed corpus folder
+if [[ ! -h "$TARGET/dc" ]]; then
+  if [[ -d "$TARGET/../../data" ]]; then
+    mkdir -pv "$TARGET/../../data/common-corpus"
+    ln -sTv "../../data/common-corpus" "$TARGET/dc"
+  else
+    mkdir -pv "$TARGET/dc"
+  fi
+fi
+
+# Link the general model folder
+if [[ ! -h "$TARGET/mc" ]]; then
+  if [[ -d "$TARGET/../../data" ]]; then
+    mkdir -pv "$TARGET/../../data/common-models"
+    ln -sTv "../../data/common-models" "$TARGET/mc"
+  else
+    mkdir -pv "$TARGET/mc"
+  fi
+fi
+
+
 
 # Experiment-specific data
 if [[ -n "${DIR_SPECIFICEXP-}" ]]; then

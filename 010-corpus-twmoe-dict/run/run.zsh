@@ -15,7 +15,7 @@
 description="Main run script of the experiment corpus-twmoe-dict"
 
 DIR="ds"
-PUB="dl"
+PUB="mc/lexicon"
 ADICT=()
 
 main() {

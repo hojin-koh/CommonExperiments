@@ -165,7 +165,14 @@ def main():
         if c in mGoodChar[cidGood]['variants']:
             continue
 
-        # If it is also a good char, ignore it
+        # If it is also a good char, but is a class-C char (rarely-used)
+        # And it can also be classified as a variant of class-A or class-B char
+        # Then delete that class-C char to avoid problems
+        if c in mCharId and not cid.startswith("C") and mCharId[c].startswith("C"):
+            del mGoodChar[mCharId[c]]
+            del mCharId[c]
+
+        # If it is also a normal good char, ignore it
         if c in mCharId:
             continue
 
@@ -175,11 +182,15 @@ def main():
 
     # Step 110: Dedup variants
     for v, aCid in tuple(mVarId.items()):
+        # Check if this good char was deleted in the last step
+        for cid in aCid:
+            if cid not in mGoodChar:
+                aCid.remove(cid)
         if len(aCid) <= 1: continue
         # First, see if said character is a simplified version of another char
         # If there's none, then decide by word frequency
         vTrad = objOpenCC.convert(v)
-        cidKeep = max(aCid, key=lambda cid: int(mGoodChar[cid]['char'] == vTrad)*10000000 + mGoodChar[cid]['freq'])
+        cidKeep = max(aCid, key=lambda cid: int(mGoodChar[cid]['char'] == vTrad and not cid.startswith("c"))*10000000 + mGoodChar[cid]['freq'])
         for cid in aCid:
             if cid == cidKeep: continue
             mGoodChar[cid]['variants'].remove(v)
@@ -212,9 +223,32 @@ def main():
             print(F'{c1}\t{c2}')
 
     # Hard-coded characters
-    print(F'臺\t台')
-    print(F'萠\t萌')
+    print("臺\t台")
+    print("萠\t萌")
+    print("畅\t暢")
+    print("𣈱\t暢")
+    print("𠚕\t齒")
 
+    # There are from OpenCC
+    print("啓\t啟")
+    print("喫\t吃")
+    print("幺\t么")
+    print("棱\t稜")
+    print("檐\t簷")
+    print("泄\t洩")
+    print("痹\t痺")
+    print("皁\t皂")
+    print("睾\t睪")
+    print("祕\t秘")
+    print("纔\t才")
+    print("脣\t唇")
+    print("蔘\t參")
+    print("覈\t核")
+    print("踊\t踴")
+    print("鍼\t針")
+    print("齶\t顎")
+    # Reversed OpenCC
+    print("汙\t污")
 
 if __name__ == '__main__':
     main()

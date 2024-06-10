@@ -70,7 +70,7 @@ main() {
     | sed -r 's/省\t/\t/'
     processOne '按人口排列的加拿大城市列表' cacity wiki-ca-city table 30 "排名.*人口" 1
     processOne '美国各州最大城市列表' usstate wiki-us-state table -1 "州別.*城市" 0
-    printf '%s\twiki-us-state\n' 加州 佛州 賓州 麻州 麻省 德州 明州 康州 威州 南卡 北卡 南達 北達
+    printf '%s\twiki-us-state\n' 加州 佛州 賓州 麻州 麻省 德州 明州 康州 威州 南卡 北卡 南達 北達 密蘇裡州
     processOne '美國城市人口排序列表' uscity wiki-us-city table 200 "排名.*人口" 1
     processOne '南美洲城市人口列表' sacity wiki-sa-city table -1 "城市.*人口" 1
   ) | sort -u \

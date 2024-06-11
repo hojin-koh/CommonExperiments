@@ -36,9 +36,7 @@ while (<STDIN>) {
       }
     }
     $text = join(' ', @aWords);
-    $text =~ s/<eng>( <eng>)+/<eng>/g;
-    $text =~ s/<num>( <num>)+/<num>/g;
-    $text =~ s/<sym>( <sym>)+/<sym>/g;
+    $text =~ s/<([^>]+)>( <[^>]+>)+/<$1>/g;
 
     print "$key\t$text\n";
 }

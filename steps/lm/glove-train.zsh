@@ -23,7 +23,7 @@ setupArgs() {
   opt -r vocab '' "Input vocabulary model"
   optType vocab input model
 
-  opt window 20 "window size"
+  opt window 15 "window size"
   opt dim 50 "vector dimension"
 }
 
@@ -47,7 +47,7 @@ main() {
   > "$dirTemp/shuffle"
 
   bc/glove/glove -verbose 1 -save-file "$dirTemp/vector" \
-      -threads $nj -x-max 10 -iter 24 -vector-size $dim -vocab-file "$dirTemp/vocab" \
+      -threads $nj -x-max 10 -iter 15 -vector-size $dim -vocab-file "$dirTemp/vocab" \
       -input-file "$dirTemp/shuffle"
 
   # Tag the model into word2vec format, computing its dimension

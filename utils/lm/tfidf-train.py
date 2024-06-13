@@ -27,7 +27,7 @@ import unicodedata
 from gensim.models import TfidfModel
 from gensim.corpora import Dictionary
 
-def makeGeneratorCorpus(objDict, fd):
+def makeGenCorpus(objDict, fd):
     for line in fd:
         yield tuple((idx, 1) for idx in objDict.doc2idx(line.strip().split(), unknown_word_index=1))
 
@@ -39,7 +39,7 @@ def main():
     objDict = Dictionary.load_from_text(fnameVocab)
     print(F"Loaded dictionary from {fnameVocab}", file=sys.stderr)
 
-    genCorpus = makeGeneratorCorpus(objDict, sys.stdin)
+    genCorpus = makeGenCorpus(objDict, sys.stdin)
     modelTfidf = TfidfModel(genCorpus, smartirs=typeSMART, normalize=True)
     modelTfidf.save(fnameModelOut)
     print(F"TF-IDF model saved as {fnameModelOut}", file=sys.stderr)

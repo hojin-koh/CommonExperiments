@@ -15,10 +15,10 @@
 # limitations under the License.
 
 # Output the nth dataset split file for cross-validation
-# Using label as guidance in a round-robin manner
+# Using label as guidance in a block manner
 # Stdin: label file
 # Arguments: n-train n-dev n-test comb-id
-# If n-dev = 0, then dev-comb-id must always be 0
+# If n-dev = 0, then there will be no development set
 
 import itertools
 import sys
@@ -58,7 +58,6 @@ def main():
         aOrder.append(key)
 
     mAlloc = {} # Allocation of each key into "train" "dev" "test"
-    #idThis = 0
     for label in sorted(maKeys):
         lenLabel = len(maKeys[label])
         for i, key in enumerate(maKeys[label]):

@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Get the nth dataset split spec for cross-validation"
+dependencies=( "uc/dataset-cv-split.py" )
 
 setupArgs() {
   opt -r in '' "Input label table"
@@ -28,7 +29,7 @@ setupArgs() {
 
 main() {
   in::load \
-  | uc/dataset-cv-split-rr.py "$nTrain" "$nDev" "$nTest" "$idSplit" \
+  | uc/dataset-cv-split.py "$nTrain" "$nDev" "$nTest" "$idSplit" \
   | out::save
   return $?
 }

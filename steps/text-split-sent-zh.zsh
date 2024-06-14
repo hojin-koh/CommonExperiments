@@ -22,7 +22,7 @@ setupArgs() {
   optType out output text
 
   opt sym '()' "Additional symbols for sentence segmentation"
-  opt thres '7' "Threshold on sentence length"
+  opt thres '2' "Threshold on sentence length"
 }
 
 main() {

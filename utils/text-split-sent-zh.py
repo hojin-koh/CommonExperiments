@@ -16,6 +16,7 @@
 
 import re
 import sys
+import unicodedata
 
 def main():
     thresLenSent = int(sys.argv[1])
@@ -36,11 +37,12 @@ def main():
         # Recombine the punctuation and 
         aSent = [''.join(x) for x in zip(aSent[0::2], aSent[1::2])]
         for sent in aSent:
-            sent = sent.strip().removesuffix("\\n")
+            sent = sent.strip().replace("\\n", "")
+            lenContent = len([c for c in sent if unicodedata.category(c).startswith("L") or unicodedata.category(c).startswith("N")])
             if len(sent) < thresLenSent:
                 continue
-            print(F"{eid}-s{idSent:06d}.txt\t{sent}")
             idSent += 1
+            print(F"{eid}-s{idSent:06d}.txt\t{sent}")
 
         if idSent == 0: # Absolutely nothing had been output
             print(F"{eid}-s{0:06d}.txt\t{text}")

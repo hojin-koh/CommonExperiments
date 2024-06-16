@@ -12,24 +12,32 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Do arithmetics with the nth (n>0) field with multiple tables"
+description="Filter a table through another table and a perl expression"
+dependencies=( "uc/table-filter.pl" )
 
 setupArgs() {
-  opt -r in '' "Input table"
-  optType in input table
   opt -r out '' "Output table"
   optType out output table
 
+  opt -r in '' "Input table"
+  optType in input table
   opt -r infilt '' "Filter value table"
   optType infilt input table
 
-  opt -r filt '' "Filter expression, like \$F eq \"train\""
+  opt filt '1 == 1' "Filter expression, like \$F eq \"train\""
 }
 
 main() {
-  in::load \
-  | uc/table-filter.pl "$filt" <(infilt::load) \
-  | out::save
+  local i
+  local param="$(in::getLoader)"
+  param+=" | uc/table-filter.pl ${(q+)filt} <($(infilt::getLoader))"
+
+  if out::isReal; then
+    eval "$param" | out::save
+    return $?
+  fi
+
+  echo "$param" | out::save
   return $?
 }
 

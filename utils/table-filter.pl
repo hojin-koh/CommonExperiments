@@ -34,6 +34,9 @@ while (<$FP>) {
 while (<STDIN>) {
     chomp;
     my ($key, $value) = split(/\t/, $_, 2);
+    unless (exists $mFilter{$key}) {
+      next;
+    }
     my $F = $mFilter{$key};
 
     if (eval($filt)) {

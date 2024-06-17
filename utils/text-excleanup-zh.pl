@@ -27,16 +27,16 @@ while (<STDIN>) {
     my @aWords = split(/\s+/, $text);
 
     for (@aWords) {
-      if (/^[-\/a-zA-Z]+$/) {
+      if (/^[-\/a-zA-Z.'",!?()]*[a-zA-Z]+[-\/a-zA-Z.'",!?()]*$/) {
         $_ = "<eng>";
-      } elsif (/^[-0-9lxo.]+$/) {
+      } elsif (/^[-0-9lxo.^_+eE~]*[0-9]+[-0-9lxo.^_+eE~]*$/) {
         $_ = "<num>";
       } elsif (/^[^\p{CJK}\p{Bopomofo}\p{Hiragana}\p{Katakana}]+$/) {
         $_ = "<sym>";
       }
     }
     $text = join(' ', @aWords);
-    $text =~ s/<([^>]+)>( <[^>]+>)+/<$1>/g;
+    $text =~ s/<([^>]+)>( <\1>)+/<$1>/g;
 
     print "$key\t$text\n";
 }

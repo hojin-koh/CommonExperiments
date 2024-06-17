@@ -12,19 +12,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Count how many text tokens is in the text record"
+description="Count how many tokens is in the first field"
+dependencies=( "uc/count-tokens.pl" )
 
 setupArgs() {
-  opt -r in '' "Input text"
-  optType in input text
+  opt -r in '' "Input table"
+  optType in input table
   opt -r out '' "Output table"
   optType out output table
 }
 
 main() {
-  in::load \
-  | uc/count-tokens.pl \
-  | out::save
+  if out::isReal; then
+    in::load \
+    | uc/count-tokens.pl \
+    | out::save
+    return $?
+  fi
+
+  (
+    in::getLoader
+    printf " | uc/count-tokens.pl"
+  ) | out::save
   return $?
 }
 

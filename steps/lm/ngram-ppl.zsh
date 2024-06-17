@@ -37,6 +37,7 @@ main() {
     | gawk -vdirOut=$dirTemp -F$'\t' '{fOut = dirOut "/" $1; print $2 > (fOut); close(fOut)}'
   local listFile
   listFile="$(find "$dirTemp" -type f | gawk '{printf("%s,", $0);}' | sed -r 's/,$//')"
+  aFiles=( "${(s:,:)listFile}" )
 
   local i
   local fd
@@ -44,9 +45,12 @@ main() {
   local paramPaste=/dev/fd/$fd
   for (( i=1; i<=${#lm[@]}; i++ )); do
     info "Evaluating ${lm[$i]} ..."
-    evaluate-ngram -verbose 0 -o "$order" -lm "${lm[$i]}" -ep "$listFile" 2>&1 \
-    | tail -n +2 \
-    | cut -d$'\t' -f4- \
+    for (( j=0; j<${#aFiles}; j+=200)); do
+      listFile="${(j:,:)${(@)aFiles[j,j+200-1]}}"
+      evaluate-ngram -verbose 0 -o "$order" -lm "${lm[$i]}" -ep "$listFile" 2>&1 \
+      | tail -n +2 \
+      | cut -d$'\t' -f4-
+    done \
     > "$dirTemp/.perp-$i"
 
     paramPaste+=" $dirTemp/.perp-$i"

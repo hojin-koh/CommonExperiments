@@ -23,13 +23,13 @@ setupArgs() {
 
   opt -r idSplit '' "The serial number (starting from 0) of this split"
   opt -r nTrain '' "How many parts of data are used as training set"
-  opt -r nDev '' "How many parts of data are used as dev set, can be zero"
   opt -r nTest '' "How many parts of data are used as test set"
+  opt specSubTrain '' "Subsets of training set spec in format name=frac:name=frac, like train=7:dev1=2:dev2=1"
 }
 
 main() {
   in::load \
-  | uc/dataset-cv-split.py "$nTrain" "$nDev" "$nTest" "$idSplit" \
+  | uc/dataset-cv-split.py "$nTrain" "$nTest" "$idSplit" $specSubTrain \
   | out::save
   return $?
 }

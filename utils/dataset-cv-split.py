@@ -27,26 +27,38 @@ from math import comb
 
 def main():
     nTrain = int(sys.argv[1])
-    nDev = int(sys.argv[2])
-    nTest = int(sys.argv[3])
-    nSetTotal = nTrain + nDev + nTest
-    nCombTrain = comb(nSetTotal, nTrain)
-    nCombTest = comb(nSetTotal-nTrain, nTest)
-    nComb = nCombTrain * nCombTest
+    nTest = int(sys.argv[2])
+    nSetTotal = nTrain + nTest
+    nComb = comb(nSetTotal, nTrain)
 
-    idComb = int(sys.argv[4])
-    idxTrain = int(idComb / nCombTest)
-    idxTest = idComb % nCombTest
+    idx = int(sys.argv[3])
 
     # List all training set combinations
-    aCombTrain = list(itertools.combinations(range(nSetTotal), nTrain))
-    setTrain = set(aCombTrain[idxTrain])
-    setDevTest = set(range(nSetTotal)) - setTrain
-    aCombTest = list(itertools.combinations(setDevTest, nTest))
-    setTest = set(aCombTest[idxTest])
-    setDev = setDevTest - setTest
+    aComb = list(itertools.combinations(range(nSetTotal), nTrain))
+    setTrain = set(aComb[idx])
+    setTest = set(range(nSetTotal)) - setTrain
 
-    sys.stderr.write('ID={} Train={} Dev={} Test={}\n'.format(idComb, str(setTrain), str(setDev), str(setTest)))
+    sys.stderr.write('ID={} Train={} Test={}\n'.format(idx, str(setTrain), str(setTest)))
+
+    # spec in format name=frac:name=frac, like train=7:dev1=2:dev2=1
+    if len(sys.argv) >= 5:
+        aSubTrainSpec = sys.argv[4].strip().split(":")
+    else:
+        aSubTrainSpec = ("train=1",)
+    aSubTrain = []
+    nSubTrainTotal = 0
+    for spec in aSubTrainSpec:
+        label, frac = spec.strip().split("=", 2)
+        frac = int(frac)
+        nSubTrainTotal += frac
+        aSubTrain.append((label, frac))
+
+    mSubTrain = {}
+    idSubTrainCounter = 0
+    for spec in aSubTrain:
+        for i in range(spec[1]):
+            mSubTrain[idSubTrainCounter] = spec[0]
+            idSubTrainCounter += 1
 
     aOrder = []
     maKeys = {}
@@ -60,14 +72,17 @@ def main():
     mAlloc = {} # Allocation of each key into "train" "dev" "test"
     for label in sorted(maKeys):
         lenLabel = len(maKeys[label])
+        lenTrain = lenLabel * len(setTrain) / nSetTotal
+        idxTrain = 0
         for i, key in enumerate(maKeys[label]):
             idThis = int(i * (nSetTotal / lenLabel))
-            if idThis in setTrain:
-                mAlloc[key] = 'train'
-            elif idThis in setTest:
+            if idThis in setTest:
                 mAlloc[key] = 'test'
-            else:
-                mAlloc[key] = 'dev'
+                continue
+            # If it is training set or some subset of it
+            idSubThis = int(idxTrain * (nSubTrainTotal / lenTrain))
+            idxTrain += 1
+            mAlloc[key] = mSubTrain[idSubThis]
 
     for key in aOrder:
         print(F'{key}\t{mAlloc[key]}')

@@ -13,34 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Filter a table through another table and a perl expression
+# Use atan to limit a feature inside the range of [0,1]
 
 use strict;
 use warnings;
 use utf8;
 use open qw(:std :utf8);
 
-my $filt = $ARGV[0];
-my $filtFile = $ARGV[1];
-
-my %mFilter;
-open(my $FP, "<", $filtFile) || die "Can't open $filtFile: $!";
-while (<$FP>) {
-    chomp;
-    my ($key, $label) = split(/\t/, $_, 2);
-    $mFilter{$key} = $label;
+use constant PI => 4 * atan2(1, 1);
+my $k = $ARGV[0];
+my $fix = 0;
+if ($k < 0) {
+  $fix = 1;
+  $k = -$k;
 }
-close($FP);
 
 while (<STDIN>) {
     chomp;
-    my ($key, $value) = split(/\t/, $_, 2);
-    unless (exists $mFilter{$key}) {
-      next;
-    }
-    my $F = $mFilter{$key};
-
-    if (eval($filt)) {
-      print "$key\t$value\n";
-    }
+    my ($key, $values) = split(/\t/, $_, 2);
+    my @aOutput = map { $fix + 2*atan2($_, $k)/PI } split(/\s+/, $values);
+    print "$key\t" . join("\t", @aOutput) . "\n";
 }

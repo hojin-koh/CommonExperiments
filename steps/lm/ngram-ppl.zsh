@@ -13,17 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Compute perplexity score on LMs"
+dependencies=( "uc/num/atan-feats.pl" )
 
 setupArgs() {
-  opt -r in '' "Input evaluation text"
-  optType in input text
   opt -r out '' "Output perplexity table"
-  optType out output table
+  optType out output vector
 
   opt -r lm '()' "Input LMs"
-  optType lm input arpa
+  optType lm input model
+  opt -r in '' "Input evaluation text"
+  optType in input text
 
   opt order 3 "n-gram order"
+  opt normk '50' "Normalize likelihood ratio to between 0-1 with this number as k>0: 2*atan(loglikehood/k)/PI"
 }
 
 main() {
@@ -32,38 +34,28 @@ main() {
 
   # Extract all sub-files into temp dir
   in::load \
-    | gawk -vdirOut="$dirTemp" -F$'\t' '{fOut = dirOut "/" $1; print $2 > (fOut); close(fOut)}'
+    | gawk -vdirOut=$dirTemp -F$'\t' '{fOut = dirOut "/" $1; print $2 > (fOut); close(fOut)}'
   local listFile
   listFile="$(find "$dirTemp" -type f | gawk '{printf("%s,", $0);}' | sed -r 's/,$//')"
 
   local i
   local fd
-  local fds=()
-  local paramPaste
-  for (( i=1; i<="${#lm[@]}"; i++ )); do
+  exec {fd}< <(in::loadKey)
+  local paramPaste=/dev/fd/$fd
+  for (( i=1; i<=${#lm[@]}; i++ )); do
     info "Evaluating ${lm[$i]} ..."
-    evaluate-ngram -verbose 0 -o $order -lm =(lm::load $i) -ep "$listFile" 2>&1 \
+    evaluate-ngram -verbose 0 -o "$order" -lm "${lm[$i]}" -ep "$listFile" 2>&1 \
     | tail -n +2 \
-    | cut -d$'\t' -f3- \
-    | sed -r "s@^$dirTemp/@@" \
-    > "$dirTemp/perp-$i"
+    | cut -d$'\t' -f4- \
+    > "$dirTemp/.perp-$i"
 
-    if [[ "$i" == "1" ]]; then
-      paramPaste="$dirTemp/perp-$i"
-    else
-      exec {fd}< <(cut -d$'\t' -f2- <"$dirTemp/perp-$i")
-      paramPaste+=" /dev/fd/$fd"
-      fds+=( $fd )
-    fi
+    paramPaste+=" $dirTemp/.perp-$i"
   done
 
   paste -d$'\t' "${(z)paramPaste}" \
+  | if [[ -n $normk ]]; then uc/num/atan-feats.pl -$normk; else cat; fi \
   | out::save
   local rslt=$?
-
-  for fd in "${fds[@]}"; do
-    exec {fd}<&-
-  done
 
   return $rslt
 }

@@ -13,34 +13,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Filter a table through another table and a perl expression
+# Apply a mapping to a table
 
 use strict;
 use warnings;
 use utf8;
 use open qw(:std :utf8);
+use List::Util qw(reduce any all none notall first reductions max maxstr min minstr product sum sum0);
 
-my $filt = $ARGV[0];
-my $filtFile = $ARGV[1];
+my $merger = $ARGV[0];
+my $inputFile = $ARGV[1];
 
-my %mFilter;
-open(my $FP, "<", $filtFile) || die "Can't open $filtFile: $!";
+my %mValue;
+open(my $FP, "<", $inputFile) || die "Can't open $inputFile: $!";
 while (<$FP>) {
     chomp;
-    my ($key, $label) = split(/\t/, $_, 2);
-    $mFilter{$key} = $label;
+    my ($key, $value) = split(/\t/, $_, 2);
+    $mValue{$key} = $value;
 }
 close($FP);
 
 while (<STDIN>) {
     chomp;
-    my ($key, $value) = split(/\t/, $_, 2);
-    unless (exists $mFilter{$key}) {
-      next;
-    }
-    my $F = $mFilter{$key};
+    my ($key, $targets) = split(/\t/, $_, 2);
+    my @F = map { $mValue{$_} } split(/\s+/, $targets);
+    my $rslt = eval($merger);
 
-    if (eval($filt)) {
-      print "$key\t$value\n";
-    }
+    print "$key\t$rslt\n";
 }

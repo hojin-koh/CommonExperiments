@@ -13,34 +13,43 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Filter a table through another table and a perl expression
+# Compute likelihood ratio (in log) inside a table
 
 use strict;
 use warnings;
 use utf8;
 use open qw(:std :utf8);
 
-my $filt = $ARGV[0];
-my $filtFile = $ARGV[1];
+use List::Util qw(reduce);
 
-my %mFilter;
-open(my $FP, "<", $filtFile) || die "Can't open $filtFile: $!";
-while (<$FP>) {
-    chomp;
-    my ($key, $label) = split(/\t/, $_, 2);
-    $mFilter{$key} = $label;
+my $mode = $ARGV[0];
+
+sub logadd {
+  my ($a, $b) = @_;
+
+  # Handle cases where one or both inputs are unusable
+  return $a if $b == -Inf;
+  return $b if $a == -Inf;
+
+  # Ensure a is the larger of the two (without loss of generality)
+  ($a, $b) = ($b, $a) if $a < $b;
+
+  return $a + log(1 + exp($b - $a));
 }
-close($FP);
 
 while (<STDIN>) {
     chomp;
-    my ($key, $value) = split(/\t/, $_, 2);
-    unless (exists $mFilter{$key}) {
-      next;
-    }
-    my $F = $mFilter{$key};
+    my ($key, $values) = split(/\t/, $_, 2);
+    my @aAll = split(/\s+/, $values);
+    my @aOutput;
 
-    if (eval($filt)) {
-      print "$key\t$value\n";
+    if ($mode eq "all") {
+      for my $i (0 .. $#aAll) {
+        push @aOutput, $aAll[$i] - (reduce { logadd $a, $b } -Inf, @aAll);
+      }
+    } else {
+      # TODO
     }
+
+    print "$key\t" . join("\t", @aOutput) . "\n";
 }

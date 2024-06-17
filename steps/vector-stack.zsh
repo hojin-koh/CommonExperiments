@@ -12,24 +12,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Filter a table through another table and a perl expression"
-dependencies=( "uc/table-filter.pl" )
+description="Stack multiple vectors together, concatenating them into a long vector"
 
 setupArgs() {
-  opt -r out '' "Output table"
-  optType out output table
-
-  opt -r in '' "Input table"
-  optType in input table
-  opt -r infilt '' "Filter value table"
-  optType infilt input table
-
-  opt filt '1 == 1' "Filter expression, like \$F eq \"train\""
+  opt -r out '' "Output vector"
+  optType out output vector
+  opt -r in '()' "Input vectors"
+  optType in input vector
 }
 
 main() {
-  local param="$(in::getLoader)"
-  param+=" | uc/table-filter.pl ${(q+)filt} <($(infilt::getLoader))"
+  local param="paste -d\$'\t' <($(in::getLoaderKey 1))"
+  for (( i=1; i<=${#in[@]}; i++ )); do
+    param+=" <($(in::getLoaderValue $i))"
+  done
 
   if out::isReal; then
     eval "$param" | out::save

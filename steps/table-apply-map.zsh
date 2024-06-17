@@ -12,8 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Filter a table through another table and a perl expression"
-dependencies=( "uc/table-filter.pl" )
+description="Apply a mapping to a table"
+dependencies=( "uc/table-apply-map.pl" "uc/reverse-mapping.pl" )
 
 setupArgs() {
   opt -r out '' "Output table"
@@ -21,15 +21,15 @@ setupArgs() {
 
   opt -r in '' "Input table"
   optType in input table
-  opt -r infilt '' "Filter value table"
-  optType infilt input table
+  opt -r map '' "Input mapping table"
+  optType map input table
 
-  opt filt '1 == 1' "Filter expression, like \$F eq \"train\""
+  opt merger 'join " ", @F' "Merging expression in perl, like (reduce { \$a + \$b } 0, @F) / @F"
 }
 
 main() {
-  local param="$(in::getLoader)"
-  param+=" | uc/table-filter.pl ${(q+)filt} <($(infilt::getLoader))"
+  local param="$(map::getLoader) | uc/reverse-mapping.pl"
+  param+=" | uc/table-apply-map.pl ${(q+)merger} <($(in::getLoader))"
 
   if out::isReal; then
     eval "$param" | out::save

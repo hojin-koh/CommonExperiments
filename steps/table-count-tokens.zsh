@@ -20,12 +20,15 @@ setupArgs() {
   optType in input table
   opt -r out '' "Output table"
   optType out output table
+
+  opt normk '' "Normalize count to between 0-1 with this number as k>0: 2*atan(loglikehood/k)/PI"
 }
 
 main() {
   if out::isReal; then
     in::load \
     | uc/count-tokens.pl \
+    | if [[ -n $normk ]]; then uc/num/atan-feats.pl -$normk; else cat; fi \
     | out::save
     return $?
   fi
@@ -33,6 +36,9 @@ main() {
   (
     in::getLoader
     printf " | uc/count-tokens.pl"
+    if [[ -n $normk ]]; then
+      printf " | uc/num/atan-feats.pl $normk"
+    fi
   ) | out::save
   return $?
 }

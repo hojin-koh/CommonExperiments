@@ -57,7 +57,7 @@ main() {
   done
 
   paste -d$'\t' "${(z)paramPaste}" \
-  | if [[ -n $normk ]]; then uc/num/atan-feats.pl -$normk; else cat; fi \
+  | if [[ -n $normk ]]; then uc/num/atan-feats.pl $normk; else cat; fi \
   | out::save
   local rslt=$?
 

@@ -18,7 +18,7 @@ dependencies=( "uc/num/compute-lr.pl" "uc/num/atan-feats.pl" )
 setupArgs() {
   opt -r out '' "Output likelihood vector"
   optType out output vector
-  opt -r outoov '' "Output oov-ratio vector"
+  opt outoov '' "Output oov-ratio vector"
   optType outoov output vector
 
   opt -r lm '()' "Input LMs"
@@ -62,11 +62,13 @@ main() {
   | out::save
   if [[ $? != 0 ]]; then return 1; fi
 
-  paste -d$'\t' "${(z)paramOOV}" \
-  | gawk -F$'\t' 'BEGIN {OFS="\t"} NR==FNR {nTok[$1] = split($2, tok, " "); next}
-      1 {for (i=2; i<=NF; i++) $i/=nTok[$1]; print}' <(in::load) - \
-  | outoov::save
-  if [[ $? != 0 ]]; then return 1; fi
+  if [[ -n $outoov ]]; then
+    paste -d$'\t' "${(z)paramOOV}" \
+    | gawk -F$'\t' 'BEGIN {OFS="\t"} NR==FNR {nTok[$1] = split($2, tok, " "); next}
+        1 {for (i=2; i<=NF; i++) $i/=nTok[$1]; print}' <(in::load) - \
+    | outoov::save
+    if [[ $? != 0 ]]; then return 1; fi
+  fi
 }
 
 source Mordio/mordio

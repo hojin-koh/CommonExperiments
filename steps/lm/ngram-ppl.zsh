@@ -25,7 +25,7 @@ setupArgs() {
   optType in input text
 
   opt order 3 "n-gram order"
-  opt normk '50' "Normalize likelihood ratio to between 0-1 with this number as k>0: 2*atan(loglikehood/k)/PI"
+  opt normk '50' "Normalize perplexity to between 0-1 with this number as k>0: 2*atan(loglikehood/k)/PI"
 }
 
 main() {

@@ -20,8 +20,6 @@
 import fileinput
 import sys
 
-from math import ceil
-
 def main():
     modeSet = False
     if sys.argv[1] == '--set':

@@ -48,12 +48,16 @@ close($FP);
 
 while (<STDIN>) {
     chomp;
+    my $isCorrect = 0;
     my ($key, $pred) = split(/\t/, $_, 2);
     for my $l (@{$mLabel{$key}}) {
       if ($pred eq $l) {
         print "$key\t0\t$mWeight{$key}\n";
-        next;
+        $isCorrect = 1;
+        last;
       }
     }
-    print "$key\t100\t$mWeight{$key}\n";
+    if (!$isCorrect) {
+      print "$key\t100\t$mWeight{$key}\n";
+    }
 }

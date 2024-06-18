@@ -20,6 +20,9 @@ setupArgs() {
   opt -r out '' "Output LM"
   optType out output model
 
+  opt inDev '' "Input development set text"
+  optType inDev input text
+
   # TODO: vocab
 
   opt order 3 "n-gram order"
@@ -46,11 +49,19 @@ main() {
   done
   info "mincount filter: $filt"
 
-  in::loadValue \
-  | estimate-ngram -verbose 0 -o "$order" -t /dev/stdin -wc /dev/stdout \
-  | gawk "$filt" \
-  | estimate-ngram -o "$order" -c /dev/stdin -wl $dirTemp/lm.bz2
-  local rslt=$?
+  if [[ -n $inDev ]]; then
+    in::loadValue \
+    | estimate-ngram -verbose 0 -o "$order" -t /dev/stdin -wc /dev/stdout \
+    | gawk "$filt" \
+    | estimate-ngram -o "$order" -c /dev/stdin -op =(inDev::loadValue) -wl $dirTemp/lm.bz2
+    local rslt=$?
+  else
+    in::loadValue \
+    | estimate-ngram -verbose 0 -o "$order" -t /dev/stdin -wc /dev/stdout \
+    | gawk "$filt" \
+    | estimate-ngram -o "$order" -c /dev/stdin -wl $dirTemp/lm.bz2
+    local rslt=$?
+  fi
 
   out::saveCopy $dirTemp/lm.bz2
 

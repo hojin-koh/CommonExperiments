@@ -50,14 +50,9 @@ while (<STDIN>) {
     chomp;
     my $isCorrect = 0;
     my ($key, $pred) = split(/\t/, $_, 2);
-    for my $l (@{$mLabel{$key}}) {
-      if ($pred eq $l) {
-        print "$key\t0\t$mWeight{$key}\n";
-        $isCorrect = 1;
-        last;
-      }
-    }
-    if (!$isCorrect) {
+    if (grep { $_ eq $pred } @{$mLabel{$key}}) {
+      print "$key\t0\t$mWeight{$key}\n";
+    } else {
       print "$key\t100\t$mWeight{$key}\n";
     }
 }

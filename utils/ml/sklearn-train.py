@@ -18,6 +18,7 @@
 # Usage: sklearn-train.py <modeltype> <json-params> <model-output> <label-file>
 
 import fileinput
+import os
 import sys
 import json
 
@@ -26,6 +27,8 @@ import zstandard as zstd
 
 from sklearn.ensemble import RandomForestClassifier
 from skl2onnx import to_onnx
+
+np.random.seed(0x19890604)
 
 def main():
     typeModel = sys.argv[1]
@@ -51,7 +54,7 @@ def main():
     print(F"Training labels: {len(aLabels)}", file=sys.stderr)
 
     if typeModel == "rf":
-        objModel = RandomForestClassifier(verbose=1, n_jobs=6, **paramModel)
+        objModel = RandomForestClassifier(verbose=1, n_jobs=int(os.getenv("OMP_NUM_THREADS", 3)), **paramModel)
         objModel.fit(mtxFeats, aLabels)
 
     objOnnx = to_onnx(objModel, mtxFeats[:1])

@@ -34,7 +34,7 @@ def main():
         if w.endswith("縣") and w != "知縣": continue
         if len(w) > 6 and re.search(R"多一事不如少一事|建設|戰機|打狗|系統|地址|號誌", w): continue
         # Long proper nouns
-        if len(w) > 6 and re.search(R"指數$|法$|權$|獎$|制度$|政策$|中心$", w): continue
+        if len(w) > 6 and re.search(R"指數$|獎$|制度$|政策$|中心$", w): continue
 
         # Number words or special words
         if re.match(R"^[一二三四五六七八九]{3}[^一二三四五六七八九十]", w):

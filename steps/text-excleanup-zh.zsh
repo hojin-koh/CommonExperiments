@@ -14,6 +14,7 @@
 # limitations under the License.
 description="Do some pretty terrible cleanups to reduce English/symbol noise in text"
 dependencies=( "uc/text-excleanup-zh.pl" )
+importantconfig=()
 
 setupArgs() {
   opt -r in '' "Input text"

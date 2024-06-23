@@ -14,6 +14,7 @@
 # limitations under the License.
 description="Normalize unicode in the keys of a table"
 dependencies=( "uc/normalize-unicode.py" )
+importantconfig=()
 
 setupArgs() {
   opt -r in '' "Input text"

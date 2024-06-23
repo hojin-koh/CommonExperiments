@@ -14,6 +14,7 @@
 # limitations under the License.
 description="Reverse a mapping to construct a value->key mapping table"
 dependencies=( "uc/reverse-mapping.pl" )
+importantconfig=()
 
 setupArgs() {
   opt -r in '' "Input table"

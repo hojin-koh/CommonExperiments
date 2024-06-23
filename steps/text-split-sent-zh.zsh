@@ -14,6 +14,7 @@
 # limitations under the License.
 description="Splitting Chinese documents into sentences based on punctuation and newlines"
 dependencies=( "uc/text-split-sent-zh.py" )
+importantconfig=(sym thres)
 
 setupArgs() {
   opt -r in '' "Unsplitted raw text"

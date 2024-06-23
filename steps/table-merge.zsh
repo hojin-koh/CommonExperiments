@@ -14,6 +14,7 @@
 # limitations under the License.
 description="Merge table entries"
 dependencies=( "uc/table-merge.py" )
+importantconfig=(set)
 
 setupArgs() {
   opt -r out '' "Output table"

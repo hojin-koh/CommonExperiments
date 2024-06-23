@@ -14,6 +14,7 @@
 # limitations under the License.
 description="Count how many tokens is in the first field"
 dependencies=( "uc/count-tokens.pl" )
+importantconfig=(normk)
 
 setupArgs() {
   opt -r in '' "Input table"

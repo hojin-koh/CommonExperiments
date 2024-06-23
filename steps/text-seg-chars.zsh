@@ -14,6 +14,7 @@
 # limitations under the License.
 description="Segment the text document into characters"
 dependencies=( "uc/text-delete-nonnlp.pl" )
+importantconfig=()
 
 setupArgs() {
   opt -r in '' "Input text"

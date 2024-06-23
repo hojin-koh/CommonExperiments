@@ -15,6 +15,7 @@
 description="Import twmoe variants table from https://github.com/kcwu/moedict-variants"
 # Backup: https://web.archive.org/web/20240602054933/https://raw.githubusercontent.com/kcwu/moedict-variants/master/list.txt
 dependencies=( "us/parse-variants-confusables.py" )
+importantconfig=()
 
 setupArgs() {
   opt -r out '' "Output table"

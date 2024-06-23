@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Generate a new table based on ids of another table and a perl conversion rule"
+dependencies=()
+importantconfig=(rule)
 
 setupArgs() {
   opt -r in '' "Input table"

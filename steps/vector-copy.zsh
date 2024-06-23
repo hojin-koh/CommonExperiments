@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Copy vectors and put them together, without doing any checks"
+dependencies=()
+importantconfig=()
 
 setupArgs() {
   opt -r out '' "Output vector"

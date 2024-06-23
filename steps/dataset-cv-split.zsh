@@ -14,6 +14,7 @@
 # limitations under the License.
 description="Get the nth dataset split spec for cross-validation"
 dependencies=( "uc/dataset-cv-split.py" )
+importantconfig=(idSplit nTrain nTest specSubTrain)
 
 setupArgs() {
   opt -r in '' "Input label table"

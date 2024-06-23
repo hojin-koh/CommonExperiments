@@ -14,6 +14,7 @@
 # limitations under the License.
 description="Normalize unicode in the keys of a table"
 dependencies=( "uc/normalize-unicode.py" "uc/table-merge.py" "uc/interpolate-count.py" )
+importantconfig=(mode)
 
 setupArgs() {
   opt -r out '' "Output table"

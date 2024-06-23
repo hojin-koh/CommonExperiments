@@ -14,6 +14,7 @@
 # limitations under the License.
 description="Import twmoe character frequency table from https://language.moe.gov.tw/001/Upload/files/SITE_CONTENT/M0001/PRIMARY/shrest2-2.htm"
 dependencies=( "us/parse-twmoe-charfreq.py" )
+importantconfig=()
 
 setupArgs() {
   opt -r out '' "Output table"

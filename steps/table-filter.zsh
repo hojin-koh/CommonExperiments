@@ -14,6 +14,7 @@
 # limitations under the License.
 description="Filter a table through another table and a perl expression"
 dependencies=( "uc/table-filter.pl" )
+importantconfig=(filt)
 
 setupArgs() {
   opt -r out '' "Output table"

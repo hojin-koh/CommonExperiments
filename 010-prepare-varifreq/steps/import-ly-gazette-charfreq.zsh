@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Import Taiwanese parliment charfreq data"
+dependencies=()
+importantconfig=()
 
 setupArgs() {
   opt -r out '' "Output table"

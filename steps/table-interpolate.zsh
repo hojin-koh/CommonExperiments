@@ -14,6 +14,7 @@
 # limitations under the License.
 description="Merge counts or scores from multiple tables"
 dependencies=( "uc/interpolate-count.py" )
+importantconfig=(normalize w)
 
 setupArgs() {
   opt -r out '' "Output table"

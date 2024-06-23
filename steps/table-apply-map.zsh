@@ -14,6 +14,7 @@
 # limitations under the License.
 description="Apply a mapping to a table"
 dependencies=( "uc/table-apply-map.pl" "uc/reverse-mapping.pl" )
+importantconfig=(merger)
 
 setupArgs() {
   opt -r out '' "Output table"

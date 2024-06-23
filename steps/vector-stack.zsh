@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Stack multiple vectors together, concatenating them into a long vector"
+dependencies=()
+importantconfig=()
 
 setupArgs() {
   opt -r out '' "Output vector"

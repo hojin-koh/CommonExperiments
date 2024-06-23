@@ -14,6 +14,7 @@
 # limitations under the License.
 description="Import google chinese character frequency table from google n-gram at https://storage.googleapis.com/books/ngrams/books/datasetsv3.html"
 dependencies=( "us/parse-google-charfreq.py" )
+importantconfig=()
 
 setupArgs() {
   opt -r out '' "Output table"

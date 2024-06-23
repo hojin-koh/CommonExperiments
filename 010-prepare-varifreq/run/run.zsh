@@ -14,22 +14,26 @@
 # limitations under the License.
 description="Get the variant and charfreq"
 
-DIR_DOWNLOAD="craw/download-dict-mini"
-DIR="ds"
 PUB="mc/lexicon"
-AFREQ=()
 
+check() {
+  [[ -f $PUB/tw-charfreq-v1.zst ]]
+  [[ -f $PUB/tw-variants-v1.zst ]]
+}
 
 main() {
+  local AFREQ=()
+  local DIR_DOWNLOAD="craw/download-dict-mini"
+  local DIR="ds"
 
   # === Part 10: Get character frequency tables ===
   mkdir -p "$DIR_DOWNLOAD"
 
-  AFREQ+=( $DIR/charfreq-twmoe.zst )
-  ss/import-twmoe-charfreq.zsh out="${AFREQ[-1]}" in="$DIR_DOWNLOAD/twmoe-charfreq.zip"
-
   AFREQ+=( $DIR/twly-gazette.zst )
   ss/import-ly-gazette-charfreq.zsh out="${AFREQ[-1]}" in="$DIR_DOWNLOAD/ly-gazette.tsv"
+
+  AFREQ+=( $DIR/charfreq-twmoe.zst )
+  ss/import-twmoe-charfreq.zsh out="${AFREQ[-1]}" in="$DIR_DOWNLOAD/twmoe-charfreq.zip"
 
   AFREQ+=( $DIR/charfreq-google.zst )
   ss/import-google-charfreq.zsh out="${AFREQ[-1]}" in="$DIR_DOWNLOAD/google-charfreq.gz"

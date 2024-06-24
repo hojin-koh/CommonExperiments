@@ -38,6 +38,7 @@ while (<STDIN>) {
       print "自古至今\t$tag\n";
       print "從古至今\t$tag\n";
       print "由古至今\t$tag\n";
+      print "一己之力\t$tag\n";
     }
   } elsif (length($w) == 8) {
     print substr($w, 0, 4) . "\t$tag\n";

@@ -28,7 +28,8 @@ main() {
     err "Unreal table output not supported" 15
   fi
 
-  local nr="$(in::getNR)"
+  local nr
+  getMeta in '' nRecord nr
   if [[ $nr -lt 500000 ]]; then
     in::load \
     | processSub \

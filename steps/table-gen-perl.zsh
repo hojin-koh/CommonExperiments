@@ -29,7 +29,8 @@ main() {
   info "ID conversion rule: $rule"
 
   if out::isReal; then
-    local nr="$(in::getNR)"
+    local nr
+    getMeta in '' nRecord nr
     in::load \
     | perl -CSAD -nle "$rule" \
     | lineProgressBar $nr \

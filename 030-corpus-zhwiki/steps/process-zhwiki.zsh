@@ -27,7 +27,8 @@ main() {
     err "Unreal text output not supported" 15
   fi
 
-  local nr="$(in::getNR)"
+  local nr
+  getMeta in '' nRecord nr
   local dirTemp
   putTemp dirTemp
 

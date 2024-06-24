@@ -28,7 +28,8 @@ main() {
     err "Unreal table output not supported" 15
   fi
 
-  local nr="$(in::getNR)"
+  local nr
+  getMeta in '' nRecord nr
   in::load \
   | uc/text-excleanup-zh.pl \
   | lineProgressBar $nr \

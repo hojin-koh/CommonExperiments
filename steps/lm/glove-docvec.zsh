@@ -35,7 +35,8 @@ main() {
     err "Unreal table output not supported" 15
   fi
 
-  local nr="$(in::getNR)"
+  local nr
+  getMeta in '' nRecord nr
   if [[ -n $tfidf ]]; then
     in::load \
     | uc/lm/glove-docvec.py "$model" "$vocab" "$tfidf" \

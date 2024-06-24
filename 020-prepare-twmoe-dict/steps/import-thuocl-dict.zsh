@@ -13,11 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Import THUOCL dictionaries from China: https://github.com/thunlp/THUOCL"
-dependencies=( "us/parse-text-wordfreq.py" )
+dependencies=( "uc/prep/import-text-wordfreq.py" "us/filter-thuocl.pl" )
 
 setupArgs() {
   opt -r out '' "Output table"
   optType out output table
+  opt -r outraw '' "Output table unfiltered"
+  optType outraw output table
   opt -r in '' "Original input directory"
 }
 
@@ -29,23 +31,32 @@ processOne() {
     info "Downloading the data from github.com/THUOCL ..."
     curl -L -o "$in/$id.txt" "https://raw.githubusercontent.com/thunlp/THUOCL/master/data/THUOCL_$id.txt"
   fi
-  us/parse-text-wordfreq.py "$@" < "$in/$id.txt" | gawk '{print $1 "'"\tthuocl-$id"'"}'
+  uc/prep/import-text-wordfreq.py "$@" < "$in/$id.txt" \
+  | perl -CSAD -nle "print \$_ . \"\\tthuocl-$id\""
 }
 
 main() {
   mkdir -p "$in"
 
-  if ! out::isReal; then
+  if ! outraw::isReal || ! out::isReal; then
     err "Unreal table output not supported" 15
   fi
 
+  local dirTemp
+  putTemp dirTemp
+
   (
-    processOne food 1 10000 4
-    processOne law 1 100000 3
-    processOne medical 1 2000 3
-    processOne lishimingren 1 750 4
-    processOne caijing 1 11900 5
-  ) | sort -u \
+    processOne food 10000 4 s2twp.json
+    processOne law 100000 3 s2twp.json
+    processOne medical 2000 3 s2twp.json
+    processOne lishimingren 750 4 s2twp.json
+    processOne caijing 11900 5 s2twp.json
+  ) > $dirTemp/table.full
+
+  outraw::save < $dirTemp/table.full
+
+  us/filter-thuocl.pl < $dirTemp/table.full \
+  | sort -u \
   | out::save
   return $?
 }

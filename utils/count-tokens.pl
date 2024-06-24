@@ -21,12 +21,12 @@ use utf8;
 use open qw(:std :utf8);
 
 while (<STDIN>) {
-    chomp;
-    my ($key, $value) = split(/\t/, $_, 2);
-    $value =~ s/^\s*//;
-    $value =~ s/\s*$//;
-    my @aToken = split(/\s+/, $value);
-    
-    my $len = @aToken;
-    print "$key\t$len\n";
+  chomp;
+  my ($key, $value) = split(/\t/, $_, 2);
+  $value =~ s/^\s*//;
+  $value =~ s/\s*$//;
+  my @aToken = split(/\s+/, $value);
+
+  my $len = @aToken;
+  print "$key\t$len\n";
 }

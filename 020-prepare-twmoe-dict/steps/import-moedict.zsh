@@ -13,11 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Import idiom list from moedict"
-dependencies=( "us/parse-moedict.py" )
+dependencies=( "us/parse-moedict.py" "us/filter-moedict.pl" )
 
 setupArgs() {
   opt -r out '' "Output table"
   optType out output table
+  opt -r outraw '' "Output table unfiltered"
+  optType outraw output table
   opt -r in '' "Original moedict html directory"
 }
 
@@ -30,24 +32,33 @@ processOne() {
     info "Downloading the data from moedict.tw ..."
     curl -L -o "$in/$id.txt" "https://www.moedict.tw/=$filter"
   fi
-  us/parse-moedict.py "$@" < "$in/$id.txt" | gawk '{print $1 "'"\tmoedict-$id"'"}'
+  us/parse-moedict.py "$@" < "$in/$id.txt" \
+  | perl -CSAD -nle "print \$_ . \"\\tmoedict-$id\""
 }
 
 main() {
   mkdir -p "$in"
 
-  if ! out::isReal; then
+  if ! outraw::isReal || ! out::isReal; then
     err "Unreal table output not supported" 15
   fi
 
+  local dirTemp
+  putTemp dirTemp
+
   (
-    processOne idioms "諺語" idioms 10
-    processOne honorifics "稱謂" - 3
-    processOne sports "球類" - 3
-    processOne units "量詞" - 3
-    processOne buntei "文體名" - 3
-    processOne holy "節氣" - 2
-  ) | sort -u \
+    processOne idioms "諺語" 10
+    processOne honorifics "稱謂" 3
+    processOne sports "球類" 3
+    processOne units "量詞" 3
+    processOne buntei "文體名" 3
+    processOne holy "節氣" 2
+  ) > $dirTemp/table.full
+
+  outraw::save < $dirTemp/table.full
+
+  us/filter-moedict.pl < $dirTemp/table.full \
+  | sort -u \
   | out::save
   return $?
 }

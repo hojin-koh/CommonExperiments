@@ -22,21 +22,21 @@ use open qw(:std :utf8);
 
 my $arith = $ARGV[0];
 while (<STDIN>) {
-    chomp;
-    my ($key, $text) = split(/\t/, $_, 2);
-    my @aWords = split(/\s+/, $text);
+  chomp;
+  my ($key, $text) = split(/\t/, $_, 2);
+  my @aWords = split(/\s+/, $text);
 
-    for (@aWords) {
-      if (/^[-\/a-zA-Z.'",!?()]*[a-zA-Z]+[-\/a-zA-Z.'",!?()]*$/) {
-        $_ = "<eng>";
-      } elsif (/^[-0-9lxo.^_+eE~]*[0-9]+[-0-9lxo.^_+eE~]*$/) {
-        $_ = "<num>";
-      } elsif (/^[^\p{CJK}\p{Bopomofo}\p{Hiragana}\p{Katakana}]+$/) {
-        $_ = "<sym>";
-      }
+  for (@aWords) {
+    if (/^[-\/a-zA-Z.'",!?()]*[a-zA-Z]+[-\/a-zA-Z.'",!?()]*$/) {
+      $_ = "<eng>";
+    } elsif (/^[-0-9lxo.^_+eE~]*[0-9]+[-0-9lxo.^_+eE~]*$/) {
+      $_ = "<num>";
+    } elsif (/^[^\p{CJK}\p{Bopomofo}\p{Hiragana}\p{Katakana}]+$/) {
+      $_ = "<sym>";
     }
-    $text = join(' ', @aWords);
-    $text =~ s/<([^>]+)>( <\1>)+/<$1>/g;
+  }
+  $text = join(' ', @aWords);
+  $text =~ s/<([^>]+)>( <\1>)+/<$1>/g;
 
-    print "$key\t$text\n";
+  print "$key\t$text\n";
 }

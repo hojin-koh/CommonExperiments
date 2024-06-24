@@ -1,3 +1,10 @@
+OpenCC
+
+# For excel files and other sources
+openpyxl
+xlrd
+beautifulsoup4
+
 zstandard
 gensim
 scikit-learn

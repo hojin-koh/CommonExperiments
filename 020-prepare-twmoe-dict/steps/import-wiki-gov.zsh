@@ -13,11 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Import world country list, world capital list, and important city list"
-dependencies=( "us/parse-wikipedia-table.py" "us/parse-wikipedia-li.py" )
+dependencies=( "uc/prep/import-wikipedia-table.py" "uc/prep/import-wikipedia-li.py" "us/filter-wiki-gov.pl" )
 
 setupArgs() {
   opt -r out '' "Output table"
   optType out output table
+  opt -r outraw '' "Output table unfiltered"
+  optType outraw output table
   opt -r in '' "Original wikipedia html file directory"
 }
 
@@ -44,14 +46,23 @@ processOne() {
     err "File $in/$fname.html is a redirection page, please find the correct title" 15
   fi
   if [[ "$dtype" == "list" ]]; then
-    us/parse-wikipedia-li.py "$@" < "$in/$fname.html" | gawk '{print $1 "'"\t$id"'"}'
+    uc/prep/import-wikipedia-li.py "$@" < "$in/$fname.html" \
+    | perl -CSAD -nle "print \$_ . \"\\t$id\""
   else
-    us/parse-wikipedia-table.py "$@" < "$in/$fname.html" | gawk '{print $1 "'"\t$id"'"}'
+    uc/prep/import-wikipedia-table.py "$@" < "$in/$fname.html" \
+    | perl -CSAD -nle "print \$_ . \"\\t$id\""
   fi
 }
 
 main() {
   mkdir -p "$in"
+
+  if ! outraw::isReal || ! out::isReal; then
+    err "Unreal table output not supported" 15
+  fi
+
+  local dirTemp
+  putTemp dirTemp
 
   (
     processOne "世界政區索引" country wiki-country table -1 "國家或地區" 0 1
@@ -61,11 +72,14 @@ main() {
     processOne "按人口排列的世界城市列表" citybypop wiki-citybypop table -1 "排名.*人口" 1
     processOne "世界城市市域人口排序列表" citybypop2 wiki-citybypop table -1 "排名.*人口" 1
 
-    processOne "财富世界500强" comp500 wiki-fortune500 table -1 "排名.*上年" 2 \
-    | perl -CSAD -lpe 'use utf8; print; s/^([美韓英法德]國)//; s/(控股|工業|科技)[^\t]*//; s/(股份有限公司|有限公司|公司|集團|株式會社)\t/\t/; print' \
-    | perl -CSAD -lpe 'use utf8; print; s/(國際)[^\t]*//; print'
-    printf '%s\twiki-fortune500\n' 波克夏 方舟 派拉蒙 皮克斯 環球 瑞士銀行 京阿尼 東電
-  ) | sort -u \
+    processOne "财富世界500强" comp500 wiki-fortune500 table -1 "排名.*上年" 2
+    printf '%s\twiki-fortune500\n' 波克夏 方舟 派拉蒙 迪斯奈 迪士尼 皮克斯 環球 瑞士銀行 京阿尼 東電 美超微 超微
+  ) > $dirTemp/table.full
+
+  outraw::save < $dirTemp/table.full
+
+  us/filter-wiki-gov.pl < $dirTemp/table.full \
+  | sort -u \
   | out::save
   return $?
 }

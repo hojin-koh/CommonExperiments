@@ -16,17 +16,17 @@
 
 # Parse dictionaries in "word freq" format
 
-import re
 import sys
-import unicodedata
 
 from opencc import OpenCC
 
 def main():
-    objOpenCC = OpenCC('s2twp.json')
-    conv = int(sys.argv[1]) # 1=Convert, 0=noconvert
-    thres = int(sys.argv[2])
-    maxchar = int(sys.argv[3])
+    thres = int(sys.argv[1])
+    maxchar = int(sys.argv[2])
+    objConv = None
+    if len(sys.argv) > 3 and sys.argv[3].endswith(".json"):
+        objConv = OpenCC(sys.argv[3])
+        del sys.argv[3]
 
     for line in sys.stdin:
         aRslt = line.strip().split(maxsplit=1)
@@ -38,14 +38,10 @@ def main():
         except:
             freq = thres+1
 
-        if len(w) < 2 or len(w) > maxchar: continue
+        if len(w) < 1 or len(w) > maxchar: continue
         if freq < thres: continue
-        if conv == 1:
-            w = objOpenCC.convert(w)
-
-        # Blacklist
-        if re.search(R"[一二三四五六七八九十零了呢嗎嘛們人的]", w): continue
-        if len(w) >= 3 and any(w.endswith(c) for c in ("市", "縣", "省", "區", "鄉", "鎮")): continue
+        if objConv:
+            w = objConv.convert(w)
 
         print(w)
 

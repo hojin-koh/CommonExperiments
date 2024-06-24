@@ -29,17 +29,17 @@ my %mValue;
 
 # Read the input
 while (<STDIN>) {
-    chomp;
-    my ($key, $value) = split(/\t/, $_, 2);
-    my @aValues = split(/\s+/, $value);
-    
-    # Store document names under their corresponding value
-    for my $v (@aValues) {
-      push @{$mValue{$v}}, $key; 
-    }
+  chomp;
+  my ($key, $value) = split(/\t/, $_, 2);
+  my @aValues = split(/\s+/, $value);
+
+  # Store document names under their corresponding value
+  for my $v (@aValues) {
+    push @{$mValue{$v}}, $key; 
+  }
 }
 
 # Output the transposed data
 for my $value (sort keys %mValue) {
-    print "$value\t@{$mValue{$value}}\n";
+  print "$value\t@{$mValue{$value}}\n";
 }

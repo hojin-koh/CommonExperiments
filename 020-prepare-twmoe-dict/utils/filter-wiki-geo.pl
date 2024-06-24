@@ -13,34 +13,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Filter a table through another table and a perl expression
+# Filter geography proper nouns from wikipedia
 
 use strict;
 use warnings;
 use utf8;
 use open qw(:std :utf8);
 
-my $filt = $ARGV[0];
-my $filtFile = $ARGV[1];
+sub doOutput {
+  my ($w, $tag) = @_;
 
-my %mFilter;
-open(my $FP, "<", $filtFile) || die "Can't open $filtFile: $!";
-while (<$FP>) {
-  chomp;
-  my ($key, $label) = split(/\t/, $_, 2);
-  $mFilter{$key} = $label;
+  print "$w\t$tag\n";
+  $w =~ s/里/裡/g;
+  print "$w\t$tag\n";
 }
-close($FP);
 
 while (<STDIN>) {
   chomp;
-  my ($key, $value) = split(/\t/, $_, 2);
-  unless (exists $mFilter{$key}) {
+  my ($w, $tag) = split(/\t/, $_, 2);
+
+  # Remove content within brackets and after certain characters
+  $w =~ s/\[.*|\（.*|\(.*|-.*|－.*|：.*|:.*|，.*|、.*//g;
+
+  # Special treatment for people's names
+  if (index($w, '·') != -1) {
+    for my $subp (split /·/, $w) {
+      $subp =~ s/\p{P}//g;
+      next if length($subp) < 2 || length($subp) > 9 || $subp =~ /[A-Za-z0-9]/;
+      doOutput($subp, $tag);
+    }
     next;
   }
-  my $F = $mFilter{$key};
 
-  if (eval($filt)) {
-    print "$key\t$value\n";
-  }
+  # Remove punctuation
+  $w =~ s/\p{P}//g;
+
+  next if length($w) < 2 || length($w) > 9 || $w =~ /[A-Za-z0-9]/;
+
+  doOutput($w, $tag);
 }

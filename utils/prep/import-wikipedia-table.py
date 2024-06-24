@@ -18,18 +18,19 @@
 
 import re
 import sys
-import unicodedata
 
 from bs4 import BeautifulSoup
 
 def main():
     limit = int(sys.argv[1])
-    reMatch = re.compile(sys.argv[2])
+    reFirstRow = re.compile(sys.argv[2])
+    aFields = tuple((int(i) for i in sys.argv[3:]))
     objSoup = BeautifulSoup(sys.stdin.read(), 'html.parser')
     for div in objSoup.find_all('div'):
         if any(cls.startswith('NavFrame') for cls in div.get('class', [])):
             div.extract()
 
+    sNames = set()
     for table in objSoup.find_all('table'):
         if table.get('id') == 'toc':
             table.extract()
@@ -44,21 +45,17 @@ def main():
             table.extract()
             continue
 
-    sNames = set()
+        if not reFirstRow.search(table.get_text(strip=True)): continue
 
-    for tag in (t for tagname in ('li', 'dt') for t in objSoup.find_all(tagname)):
-        p = tag.get_text(strip=True)
-        if len(p) < 2: continue
+        for row in table.find_all('tr'):
+            aCells = row.find_all('td')
+            for i in aFields:
+                if limit > 0 and len(sNames) >= limit: break
+                if i > len(aCells)-1: continue
 
-        if limit > 0 and len(sNames) >= limit: break
-
-        p = re.sub(R"\[.*|（.*|\(.*|-.*|－.*|：.*|:.*|，.*", "", p)
-        if not reMatch.match(p): continue
-
-        # Delete punctuations
-        p = "".join(c for c in p if not unicodedata.category(c).startswith('P'))
-        if len(p) > 1 and len(p) < 9 and not re.search(R"[A-Za-z0-9]", p):
-            sNames.add(p)
+                p = aCells[i].get_text(strip=True)
+                if len(p) < 1: continue
+                sNames.add(p)
 
     for p in sorted(sNames):
         print(p)

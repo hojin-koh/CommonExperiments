@@ -13,31 +13,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Apply a mapping to a table
+# Filter china-freqword wordlist
 
 use strict;
 use warnings;
 use utf8;
 use open qw(:std :utf8);
-use List::Util qw(reduce any all none notall first reductions max maxstr min minstr product sum sum0);
-
-my $merger = $ARGV[0];
-my $inputFile = $ARGV[1];
-
-my %mValue;
-open(my $FP, "<", $inputFile) || die "Can't open $inputFile: $!";
-while (<$FP>) {
-  chomp;
-  my ($key, $value) = split(/\t/, $_, 2);
-  $mValue{$key} = $value;
-}
-close($FP);
 
 while (<STDIN>) {
   chomp;
-  my ($key, $targets) = split(/\t/, $_, 2);
-  my @F = map { $mValue{$_} } split(/\s+/, $targets);
-  my $rslt = eval($merger);
+  my ($w, $tag) = split(/\t/, $_, 2);
 
-  print "$key\t$rslt\n";
+  # Remove punctuation
+  $w =~ s/\p{P}//g;
+
+  next if length($w) < 2 or length($w) > 4;
+
+  # Blacklist
+  next if $w =~ /[一二三四五六七八九十零黨了呢嗎嘛們人的是於最很較]|戰爭|革命|中央|中國|團|大會|..時代/;
+  next if $w =~ /^(不|小)/;
+  next if length($w) >= 3 && $w =~ /(市|縣|省)$/;
+
+  print "$w\t$tag\n";
 }

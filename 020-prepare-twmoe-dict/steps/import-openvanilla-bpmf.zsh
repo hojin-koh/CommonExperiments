@@ -13,11 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Import OpenVanilla Bopomofo word frequency list into dictionary from https://github.com/openvanilla/McBopomofo"
-dependencies=( "us/parse-text-wordfreq.py" )
+dependencies=( "uc/prep/import-text-wordfreq.py" "us/filter-openvanilla.pl" )
 
 setupArgs() {
   opt -r out '' "Output table"
   optType out output table
+  opt -r outraw '' "Output table unfiltered"
+  optType outraw output table
   opt -r in '' "Original data archive"
 }
 
@@ -27,13 +29,21 @@ main() {
     curl -L -o "$in" 'https://raw.githubusercontent.com/openvanilla/McBopomofo/master/Source/Data/phrase.occ'
   fi
 
-  if ! out::isReal; then
+  if ! outraw::isReal || ! out::isReal; then
     err "Unreal table output not supported" 15
   fi
 
-  us/parse-text-wordfreq.py 0 1000 3 <"$in" \
+  local dirTemp
+  putTemp dirTemp
+
+  uc/prep/import-text-wordfreq.py 1000 3 s2twp.json <"$in" \
+  | perl -CSAD -nle 'print $_ . "\topenvanilla-bpmf"' \
+  > $dirTemp/table.full
+
+  outraw::save < $dirTemp/table.full
+
+  us/filter-openvanilla.pl < $dirTemp/table.full \
   | sort -u \
-  | gawk '{print $1 "\topenvanilla-bpmf"}' \
   | out::save
   return $?
 }

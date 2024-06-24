@@ -14,44 +14,44 @@
 # limitations under the License.
 description="Get the variant and charfreq"
 
-PUB="mc/lexicon"
+OUT=mc/lexicon
 
 check() {
-  [[ -f $PUB/tw-charfreq-v1.zst ]]
-  [[ -f $PUB/tw-variants-v1.zst ]]
+  [[ -f $OUT/tw-charfreq-v1.zst ]]
+  [[ -f $OUT/tw-variants-v1.zst ]]
 }
 
 main() {
   local AFREQ=()
-  local DIR_DOWNLOAD="craw/download-dict-mini"
-  local DIR="ds"
+  local DIR_DOWNLOAD=craw/download-dict-mini
+  local DIR=ds
 
   # === Part 10: Get character frequency tables ===
   mkdir -p "$DIR_DOWNLOAD"
 
   AFREQ+=( $DIR/twly-gazette.zst )
-  ss/import-ly-gazette-charfreq.zsh out="${AFREQ[-1]}" in="$DIR_DOWNLOAD/ly-gazette.tsv"
+  ss/import-ly-gazette-charfreq.zsh out=${AFREQ[-1]} in=$DIR_DOWNLOAD/ly-gazette.tsv
 
   AFREQ+=( $DIR/charfreq-twmoe.zst )
-  ss/import-twmoe-charfreq.zsh out="${AFREQ[-1]}" in="$DIR_DOWNLOAD/twmoe-charfreq.zip"
+  ss/import-twmoe-charfreq.zsh out=${AFREQ[-1]} in=$DIR_DOWNLOAD/twmoe-charfreq.zip
 
   AFREQ+=( $DIR/charfreq-google.zst )
-  ss/import-google-charfreq.zsh out="${AFREQ[-1]}" in="$DIR_DOWNLOAD/google-charfreq.gz"
+  ss/import-google-charfreq.zsh out=${AFREQ[-1]} in=$DIR_DOWNLOAD/google-charfreq.gz
 
-  sc/table-interpolate.zsh --normalize out="$DIR/charfreq-unnorm.zsh" \
-    w=0.1 in="${AFREQ[3]}" w=0.3 in="${AFREQ[2]}" w=0.6 in="${AFREQ[1]}"
+  sc/table-interpolate.zsh --normalize out=$DIR/charfreq-unnorm.zsh \
+    w=0.1 in=${AFREQ[3]} w=0.3 in=${AFREQ[2]} w=0.6 in=${AFREQ[1]}
 
   # === Part 20: Get the variant table and normalized frequency table ===
 
-  INPUTVAR="$DIR_DOWNLOAD/twmoe-variants.txt"
-  if [[ -f "craw/twmoe-variants-20191207.tar.zst" ]]; then
-    INPUTVAR="craw/twmoe-variants-20191207.tar.zst"
+  INPUTVAR=$DIR_DOWNLOAD/twmoe-variants.txt
+  if [[ -f craw/twmoe-variants-20191207.tar.zst ]]; then
+    INPUTVAR=craw/twmoe-variants-20191207.tar.zst
   fi
-  ss/import-twmoe-variants.zsh out="$PUB/tw-variants-v1.zst" infreq="$DIR/charfreq-unnorm.zsh" \
-    in="$INPUTVAR" confusable="$DIR_DOWNLOAD/icu-confusable-20240412.txt"
+  ss/import-twmoe-variants.zsh out=$OUT/tw-variants-v1.zst infreq=$DIR/charfreq-unnorm.zsh \
+    in=$INPUTVAR confusable=$DIR_DOWNLOAD/icu-confusable-20240412.txt
 
-  sc/normalize-unicode-key.zsh out="$PUB/tw-charfreq-v1.zst" --mode=interpolate \
-    in="$DIR/charfreq-unnorm.zsh" conv="$PUB/tw-variants-v1.zst"
+  sc/normalize-unicode-key.zsh out=$OUT/tw-charfreq-v1.zst --mode=interpolate \
+    in=$DIR/charfreq-unnorm.zsh conv=$OUT/tw-variants-v1.zst
 
 }
 

@@ -23,26 +23,13 @@ import unicodedata
 from bs4 import BeautifulSoup
 
 def main():
-    mode = sys.argv[1]
-    maxChar = int(sys.argv[2])
+    maxChar = int(sys.argv[1])
 
     objSoup = BeautifulSoup(sys.stdin.read(), 'html.parser')
     div = objSoup.find_all('div', id='result')[0]
     for link in div.find_all('a'):
         w = link.get_text(strip=True)
-        w = "".join(c for c in w if not unicodedata.category(c).startswith("P"))
         if not w or len(w) < 2 or len(w) > maxChar: continue
-
-        if re.search("兒", w): continue
-
-        # Post-processing some weird words
-        if mode == "idioms":
-            if len(w) == 8:
-                print(w[:4])
-                print(w[4:])
-            if len(w) == 10:
-                print(w[:5])
-                print(w[5:])
 
         print(w)
 

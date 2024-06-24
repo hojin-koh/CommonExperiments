@@ -19,34 +19,37 @@ setupArgs() {
 }
 
 main() {
-  local DIR="ds"
-  local PUB="mc/lexicon"
+  local DIR=ds
+  local PUB=mc/lexicon
+  local ADICTRAW=()
   local ADICT=()
-
-  # Variants and character frequency
-  if [[ $stage -le 0 ]]; then
-    srun/get-vars.zsh
-  fi
 
   # Minimal general-purpose dictionary
   if [[ $stage -le 100 ]]; then
-    ADICT+=( "$DIR/mini-unnorm/merged-unnorm.zsh" )
+    ADICTRAW+=( $DIR/mini-unnorm/merged-unnorm-raw.zsh )
+    ADICT+=( $DIR/mini-unnorm/merged-unnorm.zsh )
     srun/get-mini.zsh
   fi
 
   # Minimal proper-noun dictionary
   if [[ $stage -le 120 ]]; then
-    ADICT+=( "$DIR/mini-unnorm/ppn-unnorm.zsh" )
+    ADICTRAW+=( $DIR/ppn-unnorm/merged-unnorm-raw.zsh )
+    ADICT+=( $DIR/ppn-unnorm/merged-unnorm.zsh )
     srun/get-ppnmini.zsh
   fi
 
   # Merge the two mini parts of the dictionary
-  sc/table-merge.zsh --set out="$DIR/tw-mini-unnorm.zsh" \
-    "in=${^ADICT[@]}"
+  sc/table-merge.zsh --set out=$DIR/tw-mini-unnorm.zsh \
+    in="${^ADICT[@]}"
 
-  sc/normalize-unicode-key.zsh out="$PUB/tw-dict-v1-mini.zst" --mode=merge \
-    in="$DIR/tw-mini-unnorm.zsh" conv="$PUB/tw-variants.zst"
+  sc/table-merge.zsh --set out=$DIR/tw-mini-unnorm-raw.zsh \
+    in="${^ADICTRAW[@]}"
 
+  sc/normalize-unicode-key.zsh out=$PUB/tw-dict-mini-v1.zst --mode=merge \
+    in=$DIR/tw-mini-unnorm.zsh conv=$PUB/tw-variants-v1.zst
+
+  sc/normalize-unicode-key.zsh out=$PUB/tw-dict-mini-v1-raw.zst --mode=merge \
+    in=$DIR/tw-mini-unnorm-raw.zsh conv=$PUB/tw-variants-v1.zst
 }
 
 source Mordio/mordio

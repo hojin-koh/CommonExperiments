@@ -13,31 +13,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Apply a mapping to a table
+# Post-process zhuyin combinations from twmoe concised dictionary
 
 use strict;
 use warnings;
 use utf8;
 use open qw(:std :utf8);
-use List::Util qw(reduce any all none notall first reductions max maxstr min minstr product sum sum0);
-
-my $merger = $ARGV[0];
-my $inputFile = $ARGV[1];
-
-my %mValue;
-open(my $FP, "<", $inputFile) || die "Can't open $inputFile: $!";
-while (<$FP>) {
-  chomp;
-  my ($key, $value) = split(/\t/, $_, 2);
-  $mValue{$key} = $value;
-}
-close($FP);
 
 while (<STDIN>) {
   chomp;
-  my ($key, $targets) = split(/\t/, $_, 2);
-  my @F = map { $mValue{$_} } split(/\s+/, $targets);
-  my $rslt = eval($merger);
+  my ($plist, $tag) = split(/\t/, $_, 2);
 
-  print "$key\t$rslt\n";
+  next if length($plist) < 2;
+
+  # Replace full-width space with half-width space
+  $plist =~ s/　/ /g;
+
+  # Some tone marks don't have space following it
+  $plist =~ s/([ˊˇˋ])(\S)/$1 $2/g;
+
+  for my $w (split /\s+/, $plist) {
+    $w =~ s/^\s+|\s+$//g;  # trim
+    $w =~ s/^˙//;
+    $w =~ s/ㄦ$//;
+
+    if (length($w) >= 2) {
+      print "$w\t$tag\n";
+    }
+
+    $w =~ s/[ˊˇˋ]$//;  # remove tone marks at the end
+
+    if (length($w) >= 2) {
+      print "$w\t$tag\n";
+    }
+  } # end for each pronounciation
+
 }

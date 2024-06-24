@@ -13,31 +13,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Apply a mapping to a table
+# Filter twmoe idioms dictionary entries
 
 use strict;
 use warnings;
 use utf8;
 use open qw(:std :utf8);
-use List::Util qw(reduce any all none notall first reductions max maxstr min minstr product sum sum0);
-
-my $merger = $ARGV[0];
-my $inputFile = $ARGV[1];
-
-my %mValue;
-open(my $FP, "<", $inputFile) || die "Can't open $inputFile: $!";
-while (<$FP>) {
-  chomp;
-  my ($key, $value) = split(/\t/, $_, 2);
-  $mValue{$key} = $value;
-}
-close($FP);
 
 while (<STDIN>) {
   chomp;
-  my ($key, $targets) = split(/\t/, $_, 2);
-  my @F = map { $mValue{$_} } split(/\s+/, $targets);
-  my $rslt = eval($merger);
+  my ($w, $tag) = split(/\t/, $_, 2);
 
-  print "$key\t$rslt\n";
+  # Remove punctuation
+  $w =~ s/\p{P}//g;
+
+  next if length($w) < 2;
+
+  # Post-processing some weird words
+  if (length($w) == 7) {
+    if ($w eq '醉翁之意不在酒' || $w =~ /又折兵$/) {
+      print substr($w, 0, 4) . "\t$tag\n";
+
+      # Custom words
+      print "自古至今\t$tag\n";
+      print "從古至今\t$tag\n";
+      print "由古至今\t$tag\n";
+    }
+  } elsif (length($w) == 8) {
+    print substr($w, 0, 4) . "\t$tag\n";
+    print substr($w, 4) . "\t$tag\n";
+  }
+
+  next if length($w) > 7;
+
+  print "$w\t$tag\n";
 }

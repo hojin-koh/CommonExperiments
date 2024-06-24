@@ -22,10 +22,10 @@ use open qw(:std :utf8);
 
 my $arith = $ARGV[0];
 while (<STDIN>) {
-    chomp;
-    my @F = split(/\t/);
-    my $key = $F[0];
-    my $rslt = eval($arith);
+  chomp;
+  my @F = split(/\t/);
+  my $key = $F[0];
+  my $rslt = eval($arith);
 
-    print "$key\t$rslt\n";
+  print "$key\t$rslt\n";
 }

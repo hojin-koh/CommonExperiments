@@ -13,11 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Import world geographic features"
-dependencies=( "us/parse-wikipedia-table.py" "us/parse-wikipedia-li.py" )
+dependencies=( "uc/prep/import-wikipedia-table.py" "uc/prep/import-wikipedia-li.py" "us/filter-wiki-geo.pl" )
 
 setupArgs() {
   opt -r out '' "Output table"
   optType out output table
+  opt -r outraw '' "Output table unfiltered"
+  optType outraw output table
   opt -r in '' "Original wikipedia html file directory"
 }
 
@@ -44,14 +46,23 @@ processOne() {
     err "File $in/$fname.html is a redirection page, please find the correct title" 15
   fi
   if [[ "$dtype" == "list" ]]; then
-    us/parse-wikipedia-li.py "$@" < "$in/$fname.html" | gawk '{print $1 "'"\t$id"'"}'
+    uc/prep/import-wikipedia-li.py "$@" < "$in/$fname.html" \
+    | perl -CSAD -nle "print \$_ . \"\\t$id\""
   else
-    us/parse-wikipedia-table.py "$@" < "$in/$fname.html" | gawk '{print $1 "'"\t$id"'"}'
+    uc/prep/import-wikipedia-table.py "$@" < "$in/$fname.html" \
+    | perl -CSAD -nle "print \$_ . \"\\t$id\""
   fi
 }
 
 main() {
   mkdir -p "$in"
+
+  if ! outraw::isReal || ! out::isReal; then
+    err "Unreal table output not supported" 15
+  fi
+
+  local dirTemp
+  putTemp dirTemp
 
   (
     processOne '世界海洋列表' ocean wiki-ocean list -1 '.*(海|灣|海峽)$'
@@ -68,7 +79,12 @@ main() {
     printf '%s\twiki-river\n' 幼發拉底河
 
     processOne '湖泊面積列表' lake wiki-lake table -1 '名稱.*水量' 1
-  ) | sort -u \
+  ) > $dirTemp/table.full
+
+  outraw::save < $dirTemp/table.full
+
+  us/filter-wiki-geo.pl < $dirTemp/table.full \
+  | sort -u \
   | out::save
   return $?
 }

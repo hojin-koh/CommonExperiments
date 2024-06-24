@@ -45,5 +45,10 @@ def main():
     for p in sorted(sNames):
         print(p)
 
+    # Many custom old names
+    for p in ("匈奴", "突厥", "朝鮮", "契丹", "夷狄", "百越", "南蠻", "西戎", "群貊", "鮮卑", "烏桓", "吐蕃", "可汗", "回紇", "沙陀", "擺夷", "女真", "党項", "東胡", "西夏"):
+        print(p)
+
+
 if __name__ == '__main__':
     main()

@@ -13,11 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Import some proper noun from moedict"
-dependencies=( "us/parse-moedict.py" )
+dependencies=( "us/parse-moedict.py" "us/filter-moedict.pl" )
 
 setupArgs() {
   opt -r out '' "Output table"
   optType out output table
+  opt -r outraw '' "Output table unfiltered"
+  optType outraw output table
   opt -r in '' "Original moedict html directory"
 }
 
@@ -30,26 +32,35 @@ processOne() {
     info "Downloading the data from moedict.tw ..."
     curl -L -o "$in/$id.txt" "https://www.moedict.tw/=$filter"
   fi
-  us/parse-moedict.py "$@" < "$in/$id.txt" | gawk '{print $1 "'"\tmoedict-$id"'"}'
+  us/parse-moedict.py "$@" < "$in/$id.txt" \
+  | perl -CSAD -nle "print \$_ . \"\\tmoedict-$id\""
 }
 
 main() {
   mkdir -p "$in"
 
-  if ! out::isReal; then
+  if ! outraw::isReal || ! out::isReal; then
     err "Unreal table output not supported" 15
   fi
 
+  local dirTemp
+  putTemp dirTemp
+
   (
-    processOne stars "星名" - 4
-    processOne signs "星座名" - 4
-    processOne microbes "微生物" - 5
-    processOne plants "植物名" - 5
-    processOne animals "動物名" - 5
-    processOne instruments "樂器名" - 5
-    processOne weapons "武器名" - 5
-    processOne disease "病名" - 7
-  ) | sort -u \
+    processOne stars "星名" 4
+    processOne signs "星座名" 4
+    processOne microbes "微生物" 5
+    processOne plants "植物名" 5
+    processOne animals "動物名" 5
+    processOne instruments "樂器名" 5
+    processOne weapons "武器名" 5
+    processOne disease "病名" 7
+  ) > $dirTemp/table.full
+
+  outraw::save < $dirTemp/table.full
+
+  us/filter-moedict.pl < $dirTemp/table.full \
+  | sort -u \
   | out::save
   return $?
 }

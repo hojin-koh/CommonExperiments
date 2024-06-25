@@ -32,13 +32,13 @@ main() {
 
   local i
   for (( i=1; i<=$#in; i++ )); do
-    info "Processing file set $i/$#in: ${out[$i]}"
+    info "Processing file set $i/$#in: ${in[$i]}"
     if out::isReal $i; then
       in::load $i \
       | uc/count-tokens.pl \
       | if [[ -n $normk ]]; then uc/num/atan-feats.pl -$normk; else cat; fi \
       | out::save $i
-      if [[ $? != 0 ]]; then return $?; fi
+      if [[ $? != 0 ]]; then return 1; fi
     else
       (
         in::getLoader $i
@@ -47,7 +47,7 @@ main() {
           printf " | uc/num/atan-feats.pl $normk"
         fi
       ) | out::save $i
-      if [[ $? != 0 ]]; then return $?; fi
+      if [[ $? != 0 ]]; then return 1; fi
     fi
   done
 }

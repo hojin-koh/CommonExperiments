@@ -46,13 +46,13 @@ main() {
       | perl -CSAD -nle "$rule" \
       | lineProgressBar $nr \
       | out::save $i
-      if [[ $? != 0 ]]; then return $?; fi
+      if [[ $? != 0 ]]; then return 1; fi
     else
       (
         in::getLoader $i
         printf " | perl -CSAD -nle '%s'" "$rule"
       ) | out::save $i
-      if [[ $? != 0 ]]; then return $?; fi
+      if [[ $? != 0 ]]; then return 1; fi
     fi
   done
 }

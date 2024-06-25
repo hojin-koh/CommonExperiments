@@ -69,7 +69,7 @@ def main():
         maKeys[label].append(key)
         aOrder.append(key)
 
-    mAlloc = {} # Allocation of each key into "train" "dev" "test"
+    mAlloc = {} # Allocation of each key into "train" "test"
     for label in sorted(maKeys):
         lenLabel = len(maKeys[label])
         lenTrain = lenLabel * len(setTrain) / nSetTotal

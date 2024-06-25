@@ -25,7 +25,7 @@ setupArgs() {
   opt -r map '' "Input mapping table"
   optType map input table
 
-  opt merger 'join \" \", @F' "Merging expression in perl, like (reduce { \$a + \$b } 0, @F) / @F"
+  opt merger 'join " ", @F' "Merging expression in perl, like (reduce { \$a + \$b } 0, @F) / @F"
 }
 
 main() {

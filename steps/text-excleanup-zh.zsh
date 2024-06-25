@@ -35,13 +35,13 @@ main() {
   local nr
   local i
   for (( i=1; i<=$#in; i++ )); do
-    info "Processing file set $i/$#in: ${out[$i]}"
+    info "Processing file set $i/$#in: ${in[$i]}"
     getMeta in $i nRecord nr
     in::load $i \
     | uc/text-excleanup-zh.pl \
     | lineProgressBar $nr \
     | out::save $i
-    if [[ $? != 0 ]]; then return $?; fi
+    if [[ $? != 0 ]]; then return 1; fi
   done
 }
 

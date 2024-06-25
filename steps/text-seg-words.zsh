@@ -43,13 +43,14 @@ main() {
   local nr
   local i
   for (( i=1; i<=$#in; i++ )); do
-    info "Processing file set $i/$#in: ${out[$i]}"
+    info "Processing file set $i/$#in: ${in[$i]}"
     getMeta in $i nRecord nr
     if [[ $nr -lt 500000 ]]; then
       in::load $i \
       | processSub \
       | lineProgressBar $nr \
       | out::save $i
+      if [[ $? != 0 ]]; then return 1; fi
     else
       # Get a list of all text
       in::loadKey $i > "$dirTemp/all.list"
@@ -59,9 +60,9 @@ main() {
           "$dirTemp" \
           "processSub" \
       | out::save $i
+      if [[ $? != 0 ]]; then return 1; fi
     fi
   done
-  return $?
 }
 
 processSub() {

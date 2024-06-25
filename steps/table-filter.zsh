@@ -12,15 +12,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Filter a table through another table and a perl expression"
+description="Filter a table through another table and a perl expression (MIMO)"
 dependencies=( "uc/table-filter.pl" )
 importantconfig=(filt)
 
 setupArgs() {
-  opt -r out '' "Output table"
+  opt -r out '()' "Output table"
   optType out output table
 
-  opt -r in '' "Input table"
+  opt -r in '()' "Input table"
   optType in input table
   opt -r infilt '' "Filter value table"
   optType infilt input table
@@ -29,16 +29,25 @@ setupArgs() {
 }
 
 main() {
-  local param="$(in::getLoader)"
-  param+=" | uc/table-filter.pl ${(q+)filt} <($(infilt::getLoader))"
-
-  if out::isReal; then
-    eval "$param" | out::save
-    return $?
+  if [[ $#out != $#in ]]; then
+    err "Input and Output must have the same number of parameters" 15
   fi
 
-  echo "$param" | out::save
-  return $?
+  local i
+  for (( i=1; i<=$#out; i++ )); do
+    info "Processing file set $i/$#in: ${in[$i]}"
+    local param="$(in::getLoader $i)"
+    param+=" | uc/table-filter.pl ${(q+)filt} <($(infilt::getLoader))"
+
+    if out::isReal $i; then
+      eval "$param" | out::save $i
+      if [[ $? != 0 ]]; then return 1; fi
+    else
+      echo "$param" | out::save $i
+      if [[ $? != 0 ]]; then return 1; fi
+    fi
+
+  done
 }
 
 source Mordio/mordio

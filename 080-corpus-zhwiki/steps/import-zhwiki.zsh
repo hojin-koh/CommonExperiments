@@ -31,7 +31,8 @@ main() {
       local dirTempPatch
       putTemp dirTempPatch
       curl -L -o "$dirTempPatch/wikiextractor.patch" https://github.com/attardi/wikiextractor/commit/ab8988ebfa9e4557411f3d4c0f4ccda139e18875.patch
-      ( cd $VIRTUAL_ENV/lib/python*/site-packages; patch -Np1 -i "$dirTempPatch/wikiextractor.patch" )
+      local pathPatchAbs="$(readlink -f "$dirTempPatch/wikiextractor.patch")"
+      ( cd $VIRTUAL_ENV/lib/python*/site-packages; patch -Np1 -i "$pathPatchAbs" )
     fi
   fi
 

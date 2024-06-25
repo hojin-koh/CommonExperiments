@@ -14,12 +14,13 @@
 # limitations under the License.
 description="Main run script to get an usable set of zhwiki data"
 
-DIR="ds"
-LEX="mc/lexicon"
-PUB="dc/zhwiki"
-DIR_DOWNLOAD="craw/download-zhwiki"
 
 main() {
+  local DIR="ds"
+  local LEX="mc/lexicon"
+  local PUB="dc/zhwiki"
+  local DIR_DOWNLOAD="craw"
+
   mkdir -p "$DIR_DOWNLOAD"
   mkdir -p "$PUB"
 
@@ -32,7 +33,7 @@ main() {
     in="$DIR/rawtext-zhwiki.txt.zst" \
 
   sc/normalize-unicode-text.zsh out="$PUB/text-doc.txt.zst" \
-    conv="$LEX/tw-variants.zst" in="$DIR/text-zhwiki.txt.zst"
+    conv="$LEX/tw-variants-v1.zst" in="$DIR/text-zhwiki.txt.zst"
 
   sc/text-split-sent-zh.zsh out="$PUB/text-sent.txt.zst" \
     in="$PUB/text-doc.txt.zst"
@@ -47,7 +48,7 @@ main() {
 
   # Segment sentence-level text
   sc/text-seg-words.zsh out="$PUB/w-sent.txt.zst" \
-    dict="$LEX/tw-dict-v1-mini.zst" freq="$LEX/tw-charfreq.zst" \
+    dict="$LEX/tw-dict-mini-v1.zst" freq="$LEX/tw-charfreq-v1.zst" \
     in="$PUB/text-sent.txt.zst"
 
   sc/text-seg-chars.zsh out="$PUB/c-sent.txt.zst" \

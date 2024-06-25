@@ -25,7 +25,7 @@ setupArgs() {
   opt -r map '' "Input mapping table"
   optType map input table
 
-  opt merger '"join \" \", @F"' "Merging expression in perl, like (reduce { \$a + \$b } 0, @F) / @F"
+  opt merger 'join \" \", @F' "Merging expression in perl, like (reduce { \$a + \$b } 0, @F) / @F"
 }
 
 main() {
@@ -35,16 +35,16 @@ main() {
 
   local i
   for (( i=1; i<=$#out; i++ )); do
-    info "Processing file set $i/$#in: ${out[$i]}"
+    info "Processing file set $i/$#in: ${in[$i]}"
     local param="$(map::getLoader) | uc/reverse-mapping.pl"
     param+=" | uc/table-apply-map.pl ${(q+)merger} <($(in::getLoader $i))"
 
     if out::isReal $i; then
       eval "$param" | out::save $i
-      if [[ $? != 0 ]]; then return $?; fi
+      if [[ $? != 0 ]]; then return 1; fi
     else
       echo "$param" | out::save $i
-      if [[ $? != 0 ]]; then return $?; fi
+      if [[ $? != 0 ]]; then return 1; fi
     fi
   done
 

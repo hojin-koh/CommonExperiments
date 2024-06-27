@@ -12,52 +12,51 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Extract document vector from GloVe model (MIMO)"
-dependencies=( "uc/lm/glove-docvec.py" )
+description="Train a gensim TF-IDF model (M-all)"
+dependencies=( "uc/lm/tfidf-train.py" )
+importantconfig=(smart)
 
 setupArgs() {
-  opt -r out '()' "Output vector"
-  optType out output vector
+  opt -r out '()' "Output model"
+  optType out output model
+  opt -r outTable '()' "Output table"
+  optType outTable output table
 
   opt -r in '()' "Input text"
   optType in input text
-  opt -r model '' "Output LM"
-  optType model input model
-  opt -r vocab '' "Input vocabulary model"
+  opt -r vocab '()' "Input vocabulary model"
   optType vocab input model
 
-  opt tfidf '' "Input TF-IDF model"
-  optType tfidf input model
+  opt smart "ltn" "SMART IR designation when calculating TF-IDF"
 }
 
 main() {
-  if ! out::ALL::isReal; then
-    err "Unreal table output not supported" 15
-  fi
-
   if [[ $#out != $#in ]]; then
     err "Input and Output must have the same number of parameters" 15
   fi
 
+  if [[ $#outTable != $#in ]]; then
+    err "Input and Output table must have the same number of parameters" 15
+  fi
+
+  if [[ $#vocab != $#in ]]; then
+    err "Input and Vocab must have the same number of parameters" 15
+  fi
+
+  local dirTemp
+  putTemp dirTemp
+
   local i
-  local nr
   for (( i=1; i<=$#in; i++ )); do
     info "Processing file set $i/$#in: ${in[$i]}"
 
-    getMeta in $i nRecord nr
-    if [[ -n $tfidf ]]; then
-      in::load $i \
-      | uc/lm/glove-docvec.py "$model" "$vocab" "$tfidf" \
-      | lineProgressBar $nr \
-      | out::save $i
-      if [[ $? != 0 ]]; then return 1; fi
-    else
-      in::load $i \
-      | uc/lm/glove-docvec.py "$model" "$vocab" \
-      | lineProgressBar $nr \
-      | out::save $i
-      if [[ $? != 0 ]]; then return 1; fi
-    fi
+    in::loadValue $i \
+    | uc/lm/tfidf-train.py "$smart" "${vocab[$i]}" "$dirTemp/model$i" \
+    | outTable::save $i
+    if [[ $? != 0 ]]; then return 1; fi
+
+    bzip2 -9 $dirTemp/model$i
+    out::saveCopy $i $dirTemp/model$i.bz2
   done
 }
 

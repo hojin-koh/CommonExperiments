@@ -21,12 +21,12 @@ setupArgs() {
 
   opt -r in '()' "Input text"
   optType in input text
-  opt -r model '' "Output LM"
+  opt -r model '()' "Output LM"
   optType model input model
-  opt -r vocab '' "Input vocabulary model"
+  opt -r vocab '()' "Input vocabulary model"
   optType vocab input model
 
-  opt tfidf '' "Input TF-IDF model"
+  opt tfidf '()' "Input TF-IDF model"
   optType tfidf input model
 }
 
@@ -39,21 +39,33 @@ main() {
     err "Input and Output must have the same number of parameters" 15
   fi
 
+  if [[ $#model != $#in ]]; then
+    err "Input and Model must have the same number of parameters" 15
+  fi
+
+  if [[ $#vocab != $#in ]]; then
+    err "Input and Vocab must have the same number of parameters" 15
+  fi
+
+  if [[ $#tfidf -gt 0 && $#vocab != $#in ]]; then
+    err "Input and TFIDF(if specified) must have the same number of parameters" 15
+  fi
+
   local i
   local nr
   for (( i=1; i<=$#in; i++ )); do
     info "Processing file set $i/$#in: ${in[$i]}"
 
     getMeta in $i nRecord nr
-    if [[ -n $tfidf ]]; then
+    if [[ -n ${tfidf[$i]-} ]]; then
       in::load $i \
-      | uc/lm/glove-docvec.py "$model" "$vocab" "$tfidf" \
+      | uc/lm/glove-docvec.py "${model[$i]}" "${vocab[$i]}" "${tfidf[$i]}" \
       | lineProgressBar $nr \
       | out::save $i
       if [[ $? != 0 ]]; then return 1; fi
     else
       in::load $i \
-      | uc/lm/glove-docvec.py "$model" "$vocab" \
+      | uc/lm/glove-docvec.py "${model[$i]}" "${vocab[$i]}" \
       | lineProgressBar $nr \
       | out::save $i
       if [[ $? != 0 ]]; then return 1; fi

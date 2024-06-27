@@ -54,7 +54,9 @@ def main():
     print(F"Training labels: {len(aLabels)}", file=sys.stderr)
 
     if typeModel == "rf":
-        objModel = RandomForestClassifier(verbose=1, n_jobs=int(os.getenv("OMP_NUM_THREADS", 3)), **paramModel)
+        from sklearn.svm import SVC
+        #objModel = SVC(C=0.5)
+        objModel = RandomForestClassifier(verbose=1, n_jobs=int(os.getenv("OMP_NUM_THREADS", 3)), max_samples=0.4, n_estimators=250, min_samples_split=6, **paramModel)
         objModel.fit(mtxFeats, aLabels)
 
     objOnnx = to_onnx(objModel, mtxFeats[:1])

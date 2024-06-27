@@ -12,14 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Train some basic word embeddings on zh-wiki data"
+description="Train some basic lm/embeddings on zh-wiki data"
 
-DIR="ds"
-MODEL="mc/lm-zhwiki"
-CORPUS="dc/zhwiki"
 
 main() {
-  mkdir -p "$MODEL"
+  local DIR="ds"
+  local MODEL="mc/lm-zhwiki"
+  local CORPUS="dc/zhwiki"
 
   # Filter out things we don't want trained
   sc/text-excleanup-zh.zsh out="$DIR/w-train.txt.zst" \
@@ -37,8 +36,9 @@ main() {
 
   # === 010: GloVe ===
 
-  sc/lm/glove-train.zsh out="$MODEL/glove-50.bz2" \
-    --dim=50 \
+  local DIMS=( 100 150 200 250 300 )
+  sc/lm/glove-train-mdmo.zsh \
+    out="$MODEL/glove-${^DIMS[@]}.bz2" --dim=${^DIMS[@]} \
     vocab="$MODEL/vocab.bz2" in="$DIR/w-train.txt.zst"
 }
 

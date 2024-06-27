@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Train a random forest classification model"
+description="Train a random forest classification model (MIMO)"
 dependencies=( "uc/ml/sklearn-train.py" )
 
 setupArgs() {
@@ -44,7 +44,7 @@ main() {
 
   # NOTE: We currently assume all data can fit in memory!
   in::load \
-  | uc/ml/sklearn-train.py rf '{}' $dirTemp/model.onnx.zst <(inLabel::load) 
+  | uc/ml/sklearn-train.py rf '{}' $dirTemp/model.onnx.zst <(inLabel::load)
 
   out::saveCopy $dirTemp/model.onnx.zst
 }

@@ -14,6 +14,7 @@
 # limitations under the License.
 description="Train a gensim TF-IDF model"
 dependencies=( "uc/lm/tfidf-train.py" )
+importantconfig=(smart)
 
 setupArgs() {
   opt -r out '' "Output model"
@@ -39,8 +40,7 @@ main() {
   local rtn=$?
 
   bzip2 -9 $dirTemp/model
-  install -v $dirTemp/model.bz2 $out.tmp
-
+  out::saveCopy $dirTemp/model.bz2
   return $rtn
 }
 

@@ -37,6 +37,7 @@ main() {
 
   if out::isReal; then
     eval "$param" | out::save
+    eval "$param" | bc/bserr >&2
     return $?
   fi
 

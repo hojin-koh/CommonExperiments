@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Generate a new table based on ids of another table and a perl conversion rule (MIMO)"
+description="Generate a new table based on ids of another table and a perl conversion rule (MIMO possible)"
 dependencies=()
 importantconfig=(rule)
 
@@ -20,7 +20,7 @@ setupArgs() {
   opt -r out '()' "Output table"
   optType out output table
   
-  opt -r rule '' "Perl conversion rule"
+  opt -r rule '()' "Perl conversion rule"
   opt -r in '()' "Input table"
   optType in input table
 }
@@ -30,27 +30,25 @@ main() {
     err "Unreal table output not supported" 15
   fi
 
-  if [[ $#out != $#in ]]; then
-    err "Input and Output must have the same number of parameters" 15
-  fi
+  computeMIMOStride out in rule
 
   local nr
   local i
-  info "ID conversion rule: $rule"
   for (( i=1; i<=$#out; i++ )); do
-    info "Processing file set $i/$#in: ${in[$i]}"
-    getMeta in $i nRecord nr
+    computeMIMOIndex $i out in rule
+    info "ID conversion rule: ${rule[$INDEX_rule]}"
+    getMeta in $INDEX_in nRecord nr
 
-    if out::isReal $i; then
-      in::load $i \
-      | perl -CSAD -nle "$rule" \
+    if out::isReal $INDEX_in; then
+      in::load $INDEX_in \
+      | perl -CSAD -nle "${rule[$INDEX_rule]}" \
       | lineProgressBar $nr \
       | out::save $i
       if [[ $? != 0 ]]; then return 1; fi
     else
       (
-        in::getLoader $i
-        printf " | perl -CSAD -nle '%s'" "$rule"
+        in::getLoader $INDEX_in
+        printf " | perl -CSAD -nle '%s'" "${rule[$INDEX_rule]}"
       ) | out::save $i
       if [[ $? != 0 ]]; then return 1; fi
     fi

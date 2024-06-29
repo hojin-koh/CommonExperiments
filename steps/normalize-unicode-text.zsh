@@ -12,14 +12,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Normalize unicode in the text (MIMO)"
+description="Normalize unicode in the text (MIMO possible)"
 dependencies=( "uc/normalize-unicode.py" )
 importantconfig=()
 
 setupArgs() {
   opt -r in '()' "Input text"
   optType in input text
-  opt -r conv '' "Input character mapping table"
+  opt -r conv '()' "Input character mapping table"
   optType conv input table
   opt -r out '()' "Output text"
   optType out output text
@@ -30,32 +30,30 @@ main() {
     err "Unreal table output not supported" 15
   fi
 
-  if [[ $#in != $#out ]]; then
-    err "Input and Output must have the same number of files" 15
-  fi
+  computeMIMOStride out in conv
 
   local dirTemp
   putTemp dirTemp
 
   local nr
   local i
-  for (( i=1; i<=$#in; i++ )); do
-    info "Processing file set $i/$#in: ${in[$i]}"
-    getMeta in $i nRecord nr
+  for (( i=1; i<=$#out; i++ )); do
+    computeMIMOIndex $i out in conv
+    getMeta in $INDEX_in nRecord nr
     if [[ $nr -lt 500000 ]]; then
-      in::load $i \
-      | processSub \
+      in::load $INDEX_in \
+      | processSub $INDEX_conv \
       | lineProgressBar $nr \
       | out::save $i
       if [[ $? != 0 ]]; then return 1; fi
     else
       # Get a list of all text
-      in::loadKey $i > "$dirTemp/all.list"
+      in::loadKey $INDEX_in > "$dirTemp/all.list"
 
-      in::load $i \
+      in::load $INDEX_in \
       | doParallelPipeText "$nj" "$nr" "$dirTemp/all.list" \
       "$dirTemp" \
-      "processSub" \
+      "processSub $INDEX_conv" \
       | out::save $i
       if [[ $? != 0 ]]; then return 1; fi
     fi
@@ -63,7 +61,8 @@ main() {
 }
 
 processSub() {
-  uc/normalize-unicode.py <(conv::load) text
+  local idx=$1
+  uc/normalize-unicode.py <(conv::load $idx) text
 }
 
 source Mordio/mordio

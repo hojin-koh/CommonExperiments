@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Segment the text document into characters (MIMO)"
+description="Segment the text document into characters (MIMO possible)"
 dependencies=( "uc/text-delete-nonnlp.pl" )
 importantconfig=()
 
@@ -28,29 +28,27 @@ main() {
     err "Unreal table output not supported" 15
   fi
 
-  if [[ $#in != $#out ]]; then
-    err "Input and Output must have the same number of files" 15
-  fi
+  computeMIMOStride out in
 
   local dirTemp
   putTemp dirTemp
 
   local nr
   local i
-  for (( i=1; i<=$#in; i++ )); do
-    info "Processing file set $i/$#in: ${in[$i]}"
-    getMeta in $i nRecord nr
+  for (( i=1; i<=$#out; i++ )); do
+    computeMIMOIndex $i out in
+    getMeta in $INDEX_in nRecord nr
     if [[ $nr -lt 500000 ]]; then
-      in::load $i \
+      in::load $INDEX_in \
       | processSub \
       | lineProgressBar $nr \
       | out::save $i
       if [[ $? != 0 ]]; then return 1; fi
     else
       # Get a list of all text
-      in::loadKey $i > "$dirTemp/all.list"
+      in::loadKey $INDEX_in > "$dirTemp/all.list"
 
-      in::load $i \
+      in::load $INDEX_in \
       | doParallelPipeText "$[nj/2]" "$nr" "$dirTemp/all.list" \
           "$dirTemp" \
           "processSub" \

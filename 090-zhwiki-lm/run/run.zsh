@@ -36,10 +36,12 @@ main() {
 
   # === 010: GloVe ===
 
-  local DIMS=( 100 150 200 250 300 )
-  sc/lm/glove-train-mdmo.zsh \
-    out="$MODEL/glove-${^DIMS[@]}.bz2" --dim=${^DIMS[@]} \
-    vocab="$MODEL/vocab.bz2" in="$DIR/w-train.txt.zst"
+  local DIMS=( 50 100 150 200 250 300 350 400 450 500 )
+  for DIM in "${DIMS[@]}"; do
+    sc/lm/glove-train.zsh \
+      out="$MODEL/glove-$DIM.bz2" --dim=$DIM \
+      vocab="$MODEL/vocab.bz2" in="$DIR/w-train.txt.zst"
+  done
 }
 
 source Mordio/mordio

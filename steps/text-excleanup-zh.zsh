@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Do some pretty terrible cleanups to reduce English/symbol noise in text (MIMO)"
+description="Do some pretty terrible cleanups to reduce English/symbol noise in text (MIMO possible)"
 dependencies=( "uc/text-excleanup-zh.pl" )
 importantconfig=()
 
@@ -28,16 +28,14 @@ main() {
     err "Unreal table output not supported" 15
   fi
 
-  if [[ $#in != $#out ]]; then
-    err "Input and Output must have the same number of files" 15
-  fi
+  computeMIMOStride out in
 
   local nr
   local i
-  for (( i=1; i<=$#in; i++ )); do
-    info "Processing file set $i/$#in: ${in[$i]}"
-    getMeta in $i nRecord nr
-    in::load $i \
+  for (( i=1; i<=$#out; i++ )); do
+    computeMIMOIndex $i out in
+    getMeta in $INDEX_in nRecord nr
+    in::load $INDEX_in \
     | uc/text-excleanup-zh.pl \
     | lineProgressBar $nr \
     | out::save $i

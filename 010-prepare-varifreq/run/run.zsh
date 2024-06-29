@@ -16,11 +16,6 @@ description="Get the variant and charfreq"
 
 OUT=mc/lexicon
 
-check() {
-  [[ -f $OUT/tw-charfreq-v1.zst ]]
-  [[ -f $OUT/tw-variants-v1.zst ]]
-}
-
 main() {
   local AFREQ=()
   local DIR_DOWNLOAD=craw/download-dict-mini

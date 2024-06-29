@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Count how many tokens is in the first field (MIMO)"
+description="Count how many tokens is in the first field after id (MIMO possible)"
 dependencies=( "uc/count-tokens.pl" )
 importantconfig=(normk)
 
@@ -26,22 +26,20 @@ setupArgs() {
 }
 
 main() {
-  if [[ $#in != $#out ]]; then
-    err "Input and Output must have the same number of files" 15
-  fi
+  computeMIMOStride out in
 
   local i
   for (( i=1; i<=$#in; i++ )); do
-    info "Processing file set $i/$#in: ${in[$i]}"
-    if out::isReal $i; then
-      in::load $i \
+    computeMIMOIndex $i out in
+    if out::isReal $INDEX_in; then
+      in::load $INDEX_in \
       | uc/count-tokens.pl \
-      | if [[ -n $normk ]]; then uc/num/atan-feats.pl -$normk; else cat; fi \
+      | if [[ -n $normk ]]; then uc/num/atan-feats.pl $normk; else cat; fi \
       | out::save $i
       if [[ $? != 0 ]]; then return 1; fi
     else
       (
-        in::getLoader $i
+        in::getLoader $INDEX_in
         printf " | uc/count-tokens.pl"
         if [[ -n $normk ]]; then
           printf " | uc/num/atan-feats.pl $normk"

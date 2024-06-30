@@ -21,12 +21,12 @@ setupArgs() {
 
   opt -r in '()' "Input text"
   optType in input text
-  opt -r model '' "Output LM"
+  opt -r model '()' "Output LM"
   optType model input model
-  opt -r vocab '' "Input vocabulary model"
+  opt -r vocab '()' "Input vocabulary model"
   optType vocab input model
 
-  opt tfidf '' "Input TF-IDF model"
+  opt tfidf '()' "Input TF-IDF model"
   optType tfidf input model
 }
 
@@ -35,25 +35,23 @@ main() {
     err "Unreal table output not supported" 15
   fi
 
-  if [[ $#out != $#in ]]; then
-    err "Input and Output must have the same number of parameters" 15
-  fi
+  computeMIMOStride out in model vocab tfidf
 
   local i
   local nr
   for (( i=1; i<=$#in; i++ )); do
-    info "Processing file set $i/$#in: ${in[$i]}"
+    computeMIMOIndex $i out in model vocab tfidf
 
-    getMeta in $i nRecord nr
-    if [[ -n $tfidf ]]; then
-      in::load $i \
-      | uc/lm/glove-docvec.py "$model" "$vocab" "$tfidf" \
+    getMeta in $INDEX_in nRecord nr
+    if [[ $#tfidf -gt 0 ]]; then
+      in::load $INDEX_in \
+      | uc/lm/glove-docvec.py "${model[$INDEX_model]}" "${vocab[$INDEX_vocab]}" "${tfidf[$INDEX_tfidf]}" \
       | lineProgressBar $nr \
       | out::save $i
       if [[ $? != 0 ]]; then return 1; fi
     else
-      in::load $i \
-      | uc/lm/glove-docvec.py "$model" "$vocab" \
+      in::load $INDEX_in \
+      | uc/lm/glove-docvec.py "${model[$INDEX_model]}" "${vocab[$INDEX_vocab]}" \
       | lineProgressBar $nr \
       | out::save $i
       if [[ $? != 0 ]]; then return 1; fi

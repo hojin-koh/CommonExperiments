@@ -44,7 +44,7 @@ def main():
     if len(sys.argv) >= 5:
         aSubTrainSpec = sys.argv[4].strip().split(":")
     else:
-        aSubTrainSpec = ("train=1",)
+        aSubTrainSpec = ("train1=1",)
     aSubTrain = []
     nSubTrainTotal = 0
     for spec in aSubTrainSpec:
@@ -82,7 +82,7 @@ def main():
             # If it is training set or some subset of it
             idSubThis = int(idxTrain * (nSubTrainTotal / lenTrain))
             idxTrain += 1
-            mAlloc[key] = mSubTrain[idSubThis]
+            mAlloc[key] = 'train:{}'.format(mSubTrain[idSubThis])
 
     for key in aOrder:
         print(F'{key}\t{mAlloc[key]}')

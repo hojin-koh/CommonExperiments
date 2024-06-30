@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Apply a mapping to a table (MIMO)"
+description="Apply a mapping to a table (MIMO possible)"
 dependencies=( "uc/table-apply-map.pl" "uc/reverse-mapping.pl" )
 importantconfig=(merger)
 
@@ -22,22 +22,21 @@ setupArgs() {
 
   opt -r in '()' "Input table"
   optType in input table
-  opt -r map '' "Input mapping table"
+  opt -r map '()' "Input mapping table"
   optType map input table
 
-  opt merger 'join " ", @F' "Merging expression in perl, like (reduce { \$a + \$b } 0, @F) / @F"
+  opt merger '("join \" \", @F")' "Merging expression in perl, like (reduce { \$a + \$b } 0, @F) / @F"
 }
 
 main() {
-  if [[ $#out != $#in ]]; then
-    err "Input and Output must have the same number of parameters" 15
-  fi
+  computeMIMOStride out in map merger
 
   local i
   for (( i=1; i<=$#out; i++ )); do
-    info "Processing file set $i/$#in: ${in[$i]}"
-    local param="$(map::getLoader) | uc/reverse-mapping.pl"
-    param+=" | uc/table-apply-map.pl ${(q+)merger} <($(in::getLoader $i))"
+    computeMIMOIndex $i out in map merger
+    info "Use merger: ${merger[$INDEX_merger]}"
+    local param="$(map::getLoader $INDEX_map) | uc/reverse-mapping.pl"
+    param+=" | uc/table-apply-map.pl ${(q+)merger[$INDEX_merger]} <($(in::getLoader $INDEX_in))"
 
     if out::isReal $i; then
       eval "$param" | out::save $i

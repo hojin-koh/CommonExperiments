@@ -21,6 +21,8 @@ import unicodedata
 def main():
     thresLenSent = int(sys.argv[1])
     sys.argv.pop(1)
+    minLenSent = int(sys.argv[1])
+    sys.argv.pop(1)
 
     if len(sys.argv) > 1:
         reAdditional = "|".join(sys.argv[1:]) + "|"
@@ -36,13 +38,22 @@ def main():
         aSent = reSplit.split(text)
         # Recombine the punctuation and 
         aSent = [''.join(x) for x in zip(aSent[0::2], aSent[1::2])]
+        bufSent = ""
         for sent in aSent:
             sent = sent.strip().replace("\\n", "")
             lenContent = len([c for c in sent if unicodedata.category(c).startswith("L") or unicodedata.category(c).startswith("N")])
             if len(sent) < thresLenSent:
                 continue
+            bufSent += " " + sent
+            if len(bufSent) >= minLenSent:
+                idSent += 1
+                print(F"{eid}-s{idSent:06d}.txt\t{bufSent.strip()}")
+                bufSent = ""
+
+        # Flush the last sentence
+        if len(bufSent) > 0:
             idSent += 1
-            print(F"{eid}-s{idSent:06d}.txt\t{sent}")
+            print(F"{eid}-s{idSent:06d}.txt\t{bufSent.strip()}")
 
         if idSent == 0: # Absolutely nothing had been output
             print(F"{eid}-s{0:06d}.txt\t{text}")

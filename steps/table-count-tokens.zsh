@@ -31,7 +31,7 @@ main() {
   local i
   for (( i=1; i<=$#in; i++ )); do
     computeMIMOIndex $i out in
-    if out::isReal $INDEX_in; then
+    if out::isReal $i; then
       in::load $INDEX_in \
       | uc/count-tokens.pl \
       | if [[ -n $normk ]]; then uc/num/atan-feats.pl $normk; else cat; fi \

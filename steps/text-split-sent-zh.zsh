@@ -14,7 +14,7 @@
 # limitations under the License.
 description="Splitting Chinese documents into sentences based on punctuation and newlines"
 dependencies=( "uc/text-split-sent-zh.py" )
-importantconfig=(sym thres)
+importantconfig=(sym thres min)
 
 setupArgs() {
   opt -r in '' "Unsplitted raw text"
@@ -23,7 +23,8 @@ setupArgs() {
   optType out output text
 
   opt sym '()' "Additional symbols for sentence segmentation"
-  opt thres '2' "Threshold on sentence length"
+  opt thres 2 "Threshold on sentence length"
+  opt min 0 "Minimum sentence length"
 }
 
 main() {
@@ -36,7 +37,7 @@ main() {
 
   in::load \
     | lineProgressBar $nr \
-    | python3 uc/text-split-sent-zh.py "$thres" "${sym[@]}" \
+    | python3 uc/text-split-sent-zh.py "$thres" "$min" "${sym[@]}" \
     | out::save
   return $?
 }

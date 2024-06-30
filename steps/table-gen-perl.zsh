@@ -39,7 +39,7 @@ main() {
     info "ID conversion rule: ${rule[$INDEX_rule]}"
     getMeta in $INDEX_in nRecord nr
 
-    if out::isReal $INDEX_in; then
+    if out::isReal $i; then
       in::load $INDEX_in \
       | perl -CSAD -nle "${rule[$INDEX_rule]}" \
       | lineProgressBar $nr \

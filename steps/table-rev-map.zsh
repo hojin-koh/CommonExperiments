@@ -12,30 +12,37 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Reverse a mapping to construct a value->key mapping table"
+description="Reverse a mapping to construct a value->key mapping table (MIMO possible)"
 dependencies=( "uc/reverse-mapping.pl" )
 importantconfig=()
 
 setupArgs() {
-  opt -r in '' "Input table"
+  opt -r in '()' "Input table"
   optType in input table
-  opt -r out '' "Output table"
+  opt -r out '()' "Output table"
   optType out output table
 }
 
 main() {
-  if out::isReal; then
-    in::load \
-    | uc/reverse-mapping.pl \
-    | out::save
-    return $?
-  fi
+  computeMIMOStride out in
 
-  (
-    in::getLoader
-    printf " | uc/reverse-mapping.pl"
-  ) | out::save
-  return $?
+  local i
+  for (( i=1; i<=$#out; i++ )); do
+    computeMIMOIndex $i out in
+    if out::isReal $i; then
+      in::load $INDEX_in \
+      | uc/reverse-mapping.pl \
+      | out::save $i
+      if [[ $? != 0 ]]; then return 1; fi
+    else
+      (
+        in::getLoader $INDEX_in
+        printf " | uc/reverse-mapping.pl"
+      ) | out::save $i
+      if [[ $? != 0 ]]; then return 1; fi
+    fi
+  done
+
 }
 
 source Mordio/mordio

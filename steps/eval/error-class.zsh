@@ -12,37 +12,65 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Compute per-entry error reate for classification, optionally append weight to it"
+description="Compute per-entry error reate for classification, optionally append weight to it (MIMO possible)"
 dependencies=( "uc/eval/error-class.pl" )
 
 setupArgs() {
-  opt -r out '' "Output error table"
+  opt -r out '()' "Output error table"
   optType out output table
+  opt -r outAvg '()' "Output average table"
+  optType outAvg output table
+  opt -r outTag '()' "Tag of output average"
 
-  opt -r in '' "Input predict table"
+  opt -r in '()' "Input predict table"
   optType in input table
-  opt -r label '' "Input label table"
+  opt -r label '()' "Input label table"
   optType label input table
 
-  opt weight '' "Input optional weight table"
+  opt weight '()' "Input optional weight table"
   optType weight input table
 }
 
 main() {
-  local param="$(in::getLoader)"
-  param+=" | uc/eval/error-class.pl <($(label::getLoader))"
-  if [[ -n $weight ]]; then
-    param+=" <($(weight::getLoader))"
+  if [[ $#outAvg != $#out ]]; then
+    err "Output average and Output table must have the same number of parameters" 15
   fi
 
-  if out::isReal; then
-    eval "$param" | out::save
-    eval "$param" | bc/bserr >&2
-    return $?
+  if [[ $#outTag != $#out ]]; then
+    err "Output average and Output table must have the same number of parameters" 15
   fi
 
-  echo "$param" | out::save
-  return $?
+  if ! outAvg::ALL::isReal; then
+    err "Unreal table output for the average part not supported" 15
+  fi
+
+  computeMIMOStride out in label weight
+
+  local i
+  for (( i=1; i<=$#out; i++ )); do
+    computeMIMOIndex $i out in label weight
+
+    local param="$(in::getLoader $INDEX_in)"
+    param+=" | uc/eval/error-class.pl <($(label::getLoader $INDEX_label))"
+    if [[ $#weight -gt 0 ]]; then
+      param+=" <($(weight::getLoader $INDEX_weight))"
+    fi
+
+    if out::isReal $i; then
+      eval "$param" | out::save $i
+      if [[ $? != 0 ]]; then return 1; fi
+    else
+      echo "$param" | out::save $i
+      if [[ $? != 0 ]]; then return 1; fi
+    fi
+
+    (
+      printf '%s\t' "${outTag[$i]}"
+      eval "$param" | bc/bserr \
+    ) | outAvg::save $i
+    if [[ $? != 0 ]]; then return 1; fi
+  done
+
 }
 
 source Mordio/mordio

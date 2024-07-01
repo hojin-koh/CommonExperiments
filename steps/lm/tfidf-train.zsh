@@ -31,7 +31,7 @@ setupArgs() {
 }
 
 main() {
-  if [[ $#outTable != $#in ]]; then
+  if [[ $#outTable != $#out ]]; then
     err "Output model and Output table must have the same number of parameters" 15
   fi
 

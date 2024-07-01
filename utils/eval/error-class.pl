@@ -48,8 +48,22 @@ close($FP);
 
 while (<STDIN>) {
     chomp;
-    my $isCorrect = 0;
-    my ($key, $pred) = split(/\t/, $_, 2);
+    my @aFields = split /\t/;
+    my $key = shift @aFields;
+    my $probMax = "-inf";
+    my $pred = '';
+
+    foreach my $field (@aFields) {
+      # Skip metadata fields (starting with underscore)
+      next if $field =~ /^_/;
+
+      my ($predThis, $probThis) = split /:/, $field;
+      if ($probThis > $probMax) {
+        $probMax = $probThis;
+        $pred = $predThis;
+      }
+    }
+
     if (grep { $_ eq $pred } @{$mLabel{$key}}) {
       print "$key\t0\t$mWeight{$key}\n";
     } else {

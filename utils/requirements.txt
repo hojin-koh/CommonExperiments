@@ -9,6 +9,7 @@ zstandard
 #gensim use git version for now to fix scipy incompatibility
 git+https://github.com/piskvorky/gensim.git
 scikit-learn
+skops
 skl2onnx
 onnxruntime
-numpy
+numpy<2.0.0 # Needed by onnxruntime and skops

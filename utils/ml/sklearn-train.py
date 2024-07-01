@@ -23,10 +23,10 @@ import sys
 import json
 
 import numpy as np
+import skops.io
 import zstandard as zstd
 
-from sklearn.ensemble import RandomForestClassifier
-from skl2onnx import to_onnx
+from sklearn.ensemble import ExtraTreesClassifier
 
 np.random.seed(0x19890604)
 
@@ -54,14 +54,15 @@ def main():
     print(F"Training labels: {len(aLabels)}", file=sys.stderr)
 
     if typeModel == "rf":
-        objModel = RandomForestClassifier(verbose=1, n_jobs=int(os.getenv("OMP_NUM_THREADS", 3)), oob_score=True, n_estimators=250, **paramModel)
+        objModel = ExtraTreesClassifier(n_jobs=int(os.getenv("OMP_NUM_THREADS", 3)), bootstrap=True, oob_score=True, n_estimators=256, **paramModel)
         objModel.fit(mtxFeats, aLabels)
 
-    objOnnx = to_onnx(objModel, mtxFeats[:1])
+    print(F"Training accuracy: {objModel.score(mtxFeats, aLabels)*100}%", file=sys.stderr)
+
     with open(fileOutput, "wb") as fpwDisk:
-        objZstd = zstd.ZstdCompressor(level=19)
+        objZstd = zstd.ZstdCompressor(level=19, threads=int(os.getenv("OMP_NUM_THREADS", 3)))
         with objZstd.stream_writer(fpwDisk) as fpw:
-            fpw.write(objOnnx.SerializeToString())
+            fpw.write(skops.io.dumps(objModel))
 
 if __name__ == '__main__':
     main()

@@ -12,41 +12,46 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Train a random forest classification model (MIMO)"
+description="Train a random forest classification model (MIMO possible)"
 dependencies=( "uc/ml/sklearn-train.py" )
 
 setupArgs() {
-  opt -r out '' "Output RF model"
+  opt -r out '()' "Output RF model"
   optType out output model
 
-  opt -r in '' "Input feature"
+  opt -r in '()' "Input feature"
   optType in input vector
-  opt -r inLabel '' "Input label"
+  opt -r inLabel '()' "Input label"
   optType inLabel input table
 
-  #opt inDev '' "Input development set feature"
-  #optType inDev input vector
-  #opt inDevLabel '' "Input development set label"
-  #optType inDevLabel input table
+  opt param '("{}")' "Hyperparameters to be passed to RF classifier"
 }
 
 main() {
-  if ! out::isReal; then
-    err "Unreal table output not supported" 15
+  if ! out::ALL::isReal; then
+    err "Unreal model output not supported" 15
   fi
 
-  if [[ $out != *.zst ]]; then
-    err "Output model can only end in .zst format" 16
-  fi
+  computeMIMOStride out in inLabel param
 
   local dirTemp
   putTemp dirTemp
 
-  # NOTE: We currently assume all data can fit in memory!
-  in::load \
-  | uc/ml/sklearn-train.py rf '{}' $dirTemp/model.onnx.zst <(inLabel::load)
+  local i
+  for (( i=1; i<=$#out; i++ )); do
+    computeMIMOIndex $i out in inLabel param
 
-  out::saveCopy $dirTemp/model.onnx.zst
+    if [[ ${out[$i]} != *.skops.zst ]]; then
+      err "Output model can only end in .skops.zst format" 16
+    fi
+
+    # NOTE: We currently assume all data can fit in memory!
+    in::load $INDEX_in \
+    | uc/ml/sklearn-train.py rf ${param[$INDEX_param]} $dirTemp/model.skops.zst <(inLabel::load $INDEX_inLabel)
+    if [[ $? != 0 ]]; then return 1; fi
+
+    out::saveCopy $i $dirTemp/model.skops.zst
+  done
 }
 
 source Mordio/mordio

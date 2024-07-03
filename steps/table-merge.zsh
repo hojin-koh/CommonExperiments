@@ -23,33 +23,34 @@ setupArgs() {
   opt -r in '()' "Input tables"
   optType in input table
 
-  opt set 'false' "Whether to use python set to process values"
+  opt set '(false)' "Whether to use python set to process values"
 }
 
 main() {
-  computeMIMOStride in out
+  computeMIMOStride in out set
 
   local params=()
+  local paramsPost=()
   local i
   for (( i=1; i<=$#in; i++ )); do
-    computeMIMOIndex $i in out
+    computeMIMOIndex $i in out set
 
     if [[ $INDEX_out -gt $#params ]]; then
-      params[$INDEX_out]=""
+      params[$INDEX_out]=" ( "
+      paramsPost[$INDEX_out]=") | uc/table-merge.py"
+      if [[ ${set[$INDEX_set]} == true ]]; then
+        paramsPost[$INDEX_out]+=" --set"
+      fi
     fi
     params[$INDEX_out]+="$(in::getLoader $i);"
   done
 
   for (( i=1; i<=$#out; i++ )); do
-    params[$i]="( ${params[$i]} ) | uc/table-merge.py"
-    if [[ $set == true ]]; then
-      params[$i]+=" --set"
-    fi
     if out::isReal $i; then
-      eval "${params[$i]}" | out::save $i
+      eval "${params[$i]}${paramsPost[$i]}" | out::save $i
       if [[ $? != 0 ]]; then return 1; fi
     else
-      echo "${params[$i]}" | out::save $i
+      echo "${params[$i]}${paramsPost[$i]}" | out::save $i
       if [[ $? != 0 ]]; then return 1; fi
     fi
   done

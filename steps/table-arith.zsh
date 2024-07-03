@@ -12,40 +12,43 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Do arithmetics with the nth (n>0) field with multiple tables"
+description="Do arithmetics with the nth (n>0) field with multiple tables (MIMO possible)"
 
 setupArgs() {
   opt -r in '()' "Input tables"
   optType in input table
-  opt -r out '' "Output table"
+  opt -r out '()' "Output table"
   optType out output table
 
-  opt nth 2 "The field index of the value to be used from tables. 1 is the key, 2 is typically the first value."
-  opt -r arith '' "Arithemetic expression, like \$F[1]-\$F[2]"
+  opt nth '(2)' "The field index of the value to be used from tables. 1 is the key, 2 is typically the first value."
+  opt -r arith '()' "Arithemetic expression, like \$F[1]-\$F[2]"
 }
 
 main() {
+  computeMIMOStride in out nth arith
+
+  local params=()
+  local paramsPost=()
   local i
-  local fdKey
-  local fdThis
-  exec {fdKey}< <(in::load 1 | cut -d$'\t' -f1)
-  local fds=( $fdKey )
-  local param="/dev/fd/$fdKey"
-  for (( i=1; i<=${#in[@]}; i++ )); do
-    exec {fdThis}< <(in::load $i | cut -d$'\t' -f$nth)
-    fds+=( $fdThis )
-    param+=" /dev/fd/$fdThis"
+  for (( i=1; i<=$#in; i++ )); do
+    computeMIMOIndex $i in out nth arith
+
+    if [[ $INDEX_out -gt $#params ]]; then
+      params[$INDEX_out]="paste -d\$'\t' <($(in::getLoaderKey $i))"
+      paramsPost[$INDEX_out]=" | uc/table-arith.pl '${arith[$INDEX_arith]}'"
+    fi
+    params[$INDEX_out]+=" <($(in::getLoader $i) | cut -d\$'\t' -f${nth[$INDEX_nth]})"
   done
 
-  paste -d$'\t' "${(z)param}" \
-  | uc/table-arith.pl "$arith" \
-  | out::save
-  local rslt=$?
-
-  for fd in "${fds[@]}"; do
-    exec {fd}<&-
+  for (( i=1; i<=$#out; i++ )); do
+    if out::isReal $i; then
+      eval "${params[$i]}${paramsPost[$i]}" | out::save $i
+      if [[ $? != 0 ]]; then return 1; fi
+    else
+      echo "${params[$i]}${paramsPost[$i]}" | out::save $i
+      if [[ $? != 0 ]]; then return 1; fi
+    fi
   done
-  return $rslt
 }
 
 source Mordio/mordio

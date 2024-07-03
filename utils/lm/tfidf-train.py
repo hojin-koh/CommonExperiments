@@ -14,10 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Based on a table of (bad character)\t(good character) records as argv[1],
-# Perform text normalization on text part of (id)\t(text) records (if sys.argv[2]=="text")
-# or key part of (key)\t(number) records from stdin (if sys.argv[2]=="key")
-# Also will do unicodedata.normalize()
+# Train a TF-IDF model
 
 import fileinput
 import re

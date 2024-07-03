@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 description="Train a glove embedding"
+dependencies=()
+importantconfig=(window dim)
+
 
 setupArgs() {
   opt -r out '' "Output LM"
@@ -55,7 +58,7 @@ main() {
   sed -ri "1i$tag" $dirTemp/vector.txt
   bzip2 -9 $dirTemp/vector.txt
 
-  install -v $dirTemp/vector.txt.bz2 $out.tmp
+  out::saveCopy $dirTemp/vector.txt.bz2
 }
 
 source Mordio/mordio

@@ -12,8 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Extract document vector from GloVe model (MIMO)"
-dependencies=( "uc/lm/glove-docvec.py" )
+description="Extract document vector from FastText model (MIMO)"
+dependencies=( "uc/lm/fasttext-docvec.py" )
 
 setupArgs() {
   opt -r out '()' "Output vector"
@@ -21,13 +21,8 @@ setupArgs() {
 
   opt -r in '()' "Input text"
   optType in input text
-  opt -r model '()' "Output LM"
-  optType model input model
-  opt -r vocab '()' "Input vocabulary model"
-  optType vocab input model
-
-  opt tfidf '()' "Input TF-IDF model"
-  optType tfidf input model
+  opt -r model '()' "Input FastText Model"
+  optType model input modeldir
 }
 
 main() {
@@ -35,27 +30,19 @@ main() {
     err "Unreal table output not supported" 15
   fi
 
-  computeMIMOStride out in model vocab tfidf
+  computeMIMOStride out in model
 
   local i
   local nr
   for (( i=1; i<=$#in; i++ )); do
-    computeMIMOIndex $i out in model vocab tfidf
+    computeMIMOIndex $i out in model
 
     getMeta in $INDEX_in nRecord nr
-    if [[ $#tfidf -gt 0 ]]; then
-      in::load $INDEX_in \
-      | uc/lm/glove-docvec.py "${model[$INDEX_model]}" "${vocab[$INDEX_vocab]}" "${tfidf[$INDEX_tfidf]}" \
-      | lineProgressBar $nr \
-      | out::save $i
-      if [[ $? != 0 ]]; then return 1; fi
-    else
-      in::load $INDEX_in \
-      | uc/lm/glove-docvec.py "${model[$INDEX_model]}" "${vocab[$INDEX_vocab]}" \
-      | lineProgressBar $nr \
-      | out::save $i
-      if [[ $? != 0 ]]; then return 1; fi
-    fi
+    in::load $INDEX_in \
+    | uc/lm/fasttext-docvec.py "${model[$INDEX_model]}/model" \
+    | lineProgressBar $nr \
+    | out::save $i
+    if [[ $? != 0 ]]; then return 1; fi
   done
 }
 

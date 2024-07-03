@@ -12,38 +12,47 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Merge table entries"
+description="Merge table entries (MIMO possible)"
 dependencies=( "uc/table-merge.py" )
 importantconfig=(set)
 
 setupArgs() {
-  opt -r out '' "Output table"
+  opt -r out '()' "Output table"
   optType out output table
 
   opt -r in '()' "Input tables"
   optType in input table
 
-  opt set '' "Whether to use python set to process values"
+  opt set 'false' "Whether to use python set to process values"
 }
 
 main() {
+  computeMIMOStride in out
+
+  local params=()
   local i
-  local param="("
-  for (( i=1; i<=${#in[@]}; i++ )); do
-    param+=" $(in::getLoader $i);"
+  for (( i=1; i<=$#in; i++ )); do
+    computeMIMOIndex $i in out
+
+    if [[ $INDEX_out -gt $#params ]]; then
+      params[$INDEX_out]=""
+    fi
+    params[$INDEX_out]+="$(in::getLoader $i);"
   done
-  param+=") | uc/table-merge.py"
-  if [[ "$set" == "true" ]]; then
-    param+=" --set"
-  fi
 
-  if out::isReal; then
-    eval "$param" | out::save
-    return $?
-  fi
-
-  echo "$param" | out::save
-  return $?
+  for (( i=1; i<=$#out; i++ )); do
+    params[$i]="( ${params[$i]} ) | uc/table-merge.py"
+    if [[ $set == true ]]; then
+      params[$i]+=" --set"
+    fi
+    if out::isReal $i; then
+      eval "${params[$i]}" | out::save $i
+      if [[ $? != 0 ]]; then return 1; fi
+    else
+      echo "${params[$i]}" | out::save $i
+      if [[ $? != 0 ]]; then return 1; fi
+    fi
+  done
 }
 
 source Mordio/mordio

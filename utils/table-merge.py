@@ -40,15 +40,15 @@ def main():
             aOrder.append(key)
             mTable[key] = []
         if value:
-            if modeSet and value in mTable[key]:
-                continue
-            mTable[key].append(value)
+            for v in value.strip().split():
+                if modeSet and v in mTable[key]: continue
+                mTable[key].append(v)
 
     for k in aOrder:
         if len(mTable[k]) > 0:
             print("{}\t{}".format(k, " ".join(mTable[k])))
         else:
-            print(F"{k}")
+            print(F"{k}\t")
 
 if __name__ == '__main__':
     main()

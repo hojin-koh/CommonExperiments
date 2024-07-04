@@ -36,11 +36,20 @@ main() {
 
   # === 010: GloVe ===
 
-  local DIMS=( 50 100 150 200 250 300 350 400 450 500 )
+  local DIMS=( 200 250 300 350 400 )
   for DIM in "${DIMS[@]}"; do
     sc/lm/glove-train.zsh \
       out="$MODEL/glove-$DIM.bz2" --dim=$DIM \
       vocab="$MODEL/vocab.bz2" in="$DIR/w-train.txt.zst"
+  done
+
+  # === 020: FastText ===
+
+  local DIMS=( 250 200 300 350 400 )
+  for DIM in "${DIMS[@]}"; do
+    sc/lm/fasttext-train.zsh \
+      out="$MODEL/fasttext-$DIM.model" --dim=$DIM \
+      in="$DIR/w-train.txt.zst"
   done
 }
 

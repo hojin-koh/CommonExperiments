@@ -1,4 +1,5 @@
 OpenCC
+strokes
 
 # For excel files and other sources
 openpyxl

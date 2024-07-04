@@ -54,7 +54,7 @@ def main():
     print(F"Training labels: {len(aLabels)}", file=sys.stderr)
 
     if typeModel == "rf":
-        objModel = ExtraTreesClassifier(n_jobs=int(os.getenv("OMP_NUM_THREADS", 3)), bootstrap=True, oob_score=True, n_estimators=256, **paramModel)
+        objModel = ExtraTreesClassifier(n_jobs=int(os.getenv("OMP_NUM_THREADS", 3)), bootstrap=True, oob_score=True, n_estimators=768, **paramModel)
         objModel.fit(mtxFeats, aLabels)
 
     print(F"Training accuracy: {objModel.score(mtxFeats, aLabels)*100}%", file=sys.stderr)

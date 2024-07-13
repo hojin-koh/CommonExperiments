@@ -12,12 +12,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Merge counts or scores from multiple tables"
+description="Merge counts or scores from multiple tables (MIMO Possible)"
 dependencies=( "uc/interpolate-count.py" )
 importantconfig=(normalize w)
 
 setupArgs() {
-  opt -r out '' "Output table"
+  opt -r out '()' "Output table"
   optType out output table
 
   opt -r in '()' "Input tables"
@@ -28,22 +28,31 @@ setupArgs() {
 }
 
 main() {
+  computeMIMOStride in out w
+
+  local params=()
   local i
-  local param="uc/interpolate-count.py"
-  if [[ "$normalize" == "true" ]]; then
-    param+=" --normalize"
-  fi
-  for (( i=1; i<=${#in[@]}; i++ )); do
-    param+=" ${w[$i]-1.0} <($(in::getLoader $i))"
+  for (( i=1; i<=$#in; i++ )); do
+    computeMIMOIndex $i in out w
+
+    if [[ $INDEX_out -gt $#params ]]; then
+      params[$INDEX_out]="uc/interpolate-count.py"
+      if [[ "$normalize" == "true" ]]; then
+        params[$INDEX_out]+=" --normalize"
+      fi
+    fi
+    params[$INDEX_out]+=" ${w[$INDEX_w]-1.0} <($(in::getLoader $i))"
   done
 
-  if out::isReal; then
-    eval "$param" | out::save
-    return $?
-  fi
-
-  echo "$param" | out::save
-  return $?
+  for (( i=1; i<=$#out; i++ )); do
+    if out::isReal $i; then
+      eval "${params[$i]}" | out::save $i
+      if [[ $? != 0 ]]; then return 1; fi
+    else
+      echo "${params[$i]}" | out::save $i
+      if [[ $? != 0 ]]; then return 1; fi
+    fi
+  done
 }
 
 source Mordio/mordio

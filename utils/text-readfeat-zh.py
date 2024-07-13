@@ -48,13 +48,13 @@ def main():
 
         aStrokes = tuple(strokes(c) for c in aChars if not c.startswith("<"))
         avgStroke = sum(aStrokes) / nNormalChar if nNormalChar>0 else 0
-        maxStroke = max(aStrokes)
+        maxStroke = max(aStrokes, default=1)
         rStrokeLow = len(tuple(s for s in aStrokes if s <= 10)) / nNormalChar if nNormalChar>0 else 0
         rStrokeMid = len(tuple(s for s in aStrokes if s > 10 and s <= 20)) / nNormalChar if nNormalChar>0 else 0
         rStrokeHigh = len(tuple(s for s in aStrokes if s > 20)) / nNormalChar if nNormalChar>0 else 0
 
         avgChar = sum(len(w) for w in aWords if not w.startswith("<")) / nNormalWord if nNormalWord>0 else 0
-        maxChar = max(len(w) for w in aWords if not w.startswith("<"))
+        maxChar = max((len(w) for w in aWords if not w.startswith("<")), default=1)
         nWord1c = sum(len(w)==1 for w in aWords if not w.startswith("<")) / nNormalWord if nNormalWord>0 else 0
         nWord2c = sum(len(w)==2 for w in aWords if not w.startswith("<")) / nNormalWord if nNormalWord>0 else 0
         nWord3c = sum(len(w)==3 for w in aWords if not w.startswith("<")) / nNormalWord if nNormalWord>0 else 0

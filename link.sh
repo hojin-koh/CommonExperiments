@@ -124,5 +124,6 @@ if [[ -f "$TARGET/us/requirements.txt" ]]; then
 fi
 ) > "$TARGET/requirements.txt"
 
-# By default, use a local directory as tmp
+# By default, use a local directory as tmp and log
 echo "export TMPDIR=tmp" > "$TARGET/.env"
+echo "export MORDIO_LOGDIR=log" >> "$TARGET/.env"

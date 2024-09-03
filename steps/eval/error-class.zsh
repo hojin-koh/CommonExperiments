@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-description="Compute per-entry error reate for classification, optionally append weight to it (MIMO possible)"
+description="Compute per-entry error rate for classification, optionally append weight to it (MIMO possible)"
 dependencies=( "uc/eval/error-class.pl" )
 
 setupArgs() {

@@ -126,4 +126,5 @@ fi
 
 # By default, use a local directory as tmp and log
 echo "export TMPDIR=tmp" > "$TARGET/.env"
+echo "export HF_HOME=tmp" >> "$TARGET/.env"
 echo "export MORDIO_LOGDIR=log" >> "$TARGET/.env"

@@ -27,6 +27,7 @@ import skops.io
 import zstandard as zstd
 
 from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.neural_network import MLPClassifier
 
 np.random.seed(0x19890604)
 
@@ -55,6 +56,9 @@ def main():
 
     if typeModel == "rf":
         objModel = ExtraTreesClassifier(n_jobs=int(os.getenv("OMP_NUM_THREADS", 3)), bootstrap=True, oob_score=True, n_estimators=768, **paramModel)
+        objModel.fit(mtxFeats, aLabels)
+    elif typeModel == "mlp":
+        objModel = MLPClassifier(hidden_layer_sizes=(200, 150, 200, 50), **paramModel)
         objModel.fit(mtxFeats, aLabels)
 
     print(F"Training accuracy: {objModel.score(mtxFeats, aLabels)*100}%", file=sys.stderr)

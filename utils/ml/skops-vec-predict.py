@@ -43,8 +43,11 @@ def main():
     print(F"Loaded skops model from {fnameModel}", file=sys.stderr)
 
     print(F"Accept feature dim: ({objModel.n_features_in_},)", file=sys.stderr)
-    if 'classes_' in objModel:
-        print(F"Output classes: {objModel.classes_}", file=sys.stderr)
+    try:
+        if 'classes_' in objModel:
+            print(F"Output classes: {objModel.classes_}", file=sys.stderr)
+    except:
+        pass
 
     for line in sys.stdin:
         key, values = line.strip().split('\t', 1)

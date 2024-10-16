@@ -25,6 +25,7 @@ setupArgs() {
   opt -r nTrain '' "How many parts of data are used as training set"
   opt -r nTest '' "How many parts of data are used as test set"
   opt specSubTrain '' "Subsets of training set spec in format name=frac:name=frac, like train=7:dev1=2:dev2=1"
+  opt isRandom false "Whether to do pure random split, if false, do block split"
 }
 
 putCombination() {
@@ -56,7 +57,7 @@ main() {
 
   for (( i=1; i<=$nComb; i++ )); do
     in::load \
-    | uc/dataset-cv-split.py "$nTrain" "$nTest" $[i-1] "$specSubTrain" \
+    | uc/dataset-cv-split.py "$isRandom" "$nTrain" "$nTest" $[i-1] "$specSubTrain" \
     | out::save $i
     if [[ $? != 0 ]]; then return 1; fi
   done

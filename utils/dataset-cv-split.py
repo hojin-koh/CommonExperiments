@@ -21,17 +21,21 @@
 # If n-dev = 0, then there will be no development set
 
 import itertools
+import random
 import sys
 
 from math import comb
 
+random.seed(0x19890604)
+
 def main():
-    nTrain = int(sys.argv[1])
-    nTest = int(sys.argv[2])
+    isRandom = True if (sys.argv[1].lower() == "true") else False
+    nTrain = int(sys.argv[2])
+    nTest = int(sys.argv[3])
     nSetTotal = nTrain + nTest
     nComb = comb(nSetTotal, nTrain)
 
-    idx = int(sys.argv[3])
+    idx = int(sys.argv[4])
 
     # List all training set combinations
     aComb = list(itertools.combinations(range(nSetTotal), nTrain))
@@ -41,8 +45,8 @@ def main():
     sys.stderr.write('ID={} Train={} Test={}\n'.format(idx, str(setTrain), str(setTest)))
 
     # spec in format name=frac:name=frac, like train=7:dev1=2:dev2=1
-    if len(sys.argv) >= 5:
-        aSubTrainSpec = sys.argv[4].strip().split(":")
+    if len(sys.argv) >= 6:
+        aSubTrainSpec = sys.argv[5].strip().split(":")
     else:
         aSubTrainSpec = ("train1=1",)
     aSubTrain = []
@@ -71,6 +75,8 @@ def main():
 
     mAlloc = {} # Allocation of each key into "train" "test"
     for label in sorted(maKeys):
+        if isRandom: # Randomize the list if needed
+            random.shuffle(maKeys[label])
         lenLabel = len(maKeys[label])
         lenTrain = lenLabel * len(setTrain) / nSetTotal
         idxTrain = 0

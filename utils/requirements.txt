@@ -14,3 +14,7 @@ skops
 skl2onnx
 onnxruntime
 numpy<2.0.0 # Needed by onnxruntime and skops
+
+# Huggingface things
+transformers
+evaluate

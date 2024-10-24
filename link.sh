@@ -128,3 +128,4 @@ fi
 echo "export TMPDIR=tmp" > "$TARGET/.env"
 echo "export HF_HOME=tmp" >> "$TARGET/.env"
 echo "export MORDIO_LOGDIR=log" >> "$TARGET/.env"
+echo "export TOKENIZERS_PARALLELISM=false" >> "$TARGET/.env"
